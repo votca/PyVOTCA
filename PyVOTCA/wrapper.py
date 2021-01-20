@@ -2,10 +2,10 @@ import os
 import h5py
 import numpy as np
 
-__all__ = ["VotcaWrapper"]
+__all__ = ["VOTCA"]
 
 
-class VotcaWrapper:
+class VOTCA:
 
     def __init__(self, threads=1, jobname='dftgwbse', jobdir='./'): 
         self.threads = threads
