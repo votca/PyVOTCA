@@ -50,10 +50,3 @@ class VotcaWrapper:
         else:
             print("Invalid kind!")
             exit()
-
-
-
-
-
-
-
