@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 import os
 
-from setuptools import setup
-
+from setuptools import find_packages, setup
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -21,9 +20,7 @@ setup(
     author="Bjoern Baumeier",
     author_email='',
     url='https://github.com/https://github.com/votca/votcapytools/votcapytools',
-    packages=[
-        'votcapytools',
-    ],
+    packages=find_packages(),
     include_package_data=True,
     license="Apache Software License 2.0",
     zip_safe=False,
@@ -36,6 +33,12 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
     ],
+    entry_points={
+        'console_scripts': [
+            'xtp_gradient=votcapytools.xtp_gradient:main',
+        ]
+    },
+
     install_requires=["numpy", "h5py"],
     extras_require={
         'test': ['coverage', 'mypy', 'pycodestyle', 'pytest>=3.9',
