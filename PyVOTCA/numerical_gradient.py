@@ -6,7 +6,7 @@ from collections import namedtuple
 from itertools import cycle
 
 
-from .wrapper import VOTCA as votca
+#from .wrapper import VOTCA as votca
 
 __all__ = ["NumericalGradient"]
 
