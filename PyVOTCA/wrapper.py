@@ -2,6 +2,7 @@ import os
 import h5py
 import numpy as np
 import xml.etree.ElementTree as ET
+from .molecule import Molecule
 
 
 __all__ = ["VOTCA"]
@@ -35,12 +36,15 @@ class VOTCA:
         options.write('dftgwbse.xml') 
 
 
-    # just runs xtp_tools with CMDline call, expects
-    # - an xyz file xyzname.xyz
-    # is present in the same directory
-    def runXYZ(self, xyzname):
-
+    # just runs xtp_tools with CMDline call
+    def run(self, mol : Molecule):
+        # update and write the options
         self.updateOptions()
+
+        # write the XYZfile
+        xyzname=mol.getName()
+        xyzfile=xyzname+".xyz"
+        mol.writeXYZfile(xyzfile)
 
         """ Runs VOTCA and moves results a job folder, if requested """
         if not os.path.exists(self.jobdir):
@@ -123,11 +127,3 @@ class VOTCA:
     def getKSenergies(self):
         return self.KSenergies
 
-
-
-    def runMOL(self, mol):
-        # write mol to XYZfile
-        xyzname='system'
-        # will need a call to RDKIT xyz writer
-        # call runXYZ method
-        runXYZ(xyzname,threads,jobname,jobdir)

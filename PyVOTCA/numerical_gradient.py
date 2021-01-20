@@ -5,7 +5,7 @@ import os
 from collections import namedtuple
 from itertools import cycle
 
-from .coordinate_io import CoordinateIO as cio
+
 from .wrapper import VOTCA as votca
 
 __all__ = ["NumericalGradient"]
