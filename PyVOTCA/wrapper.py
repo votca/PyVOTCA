@@ -1,6 +1,7 @@
 import os
 import h5py
 import numpy as np
+import xml.etree.ElementTree as ET
 
 __all__ = ["VOTCA"]
 
@@ -12,15 +13,34 @@ class VOTCA:
         self.jobname = jobname
         self.jobdir = jobdir
         self.orbfile = ''
-        self.functional = ''
         self.hasData = False
+        self.options = dict() 
+
+
+    def updateOptions(self):
+
+        # parsing defaults 
+        votcashare=os.environ.get('VOTCASHARE')
+        default_options=votcashare+'/xtp/xml/dftgwbse.xml'
+        options = ET.parse(default_options) 
+        root = options.getroot()
+
+        for option, value in self.options.items():
+            if value != '':
+                for setting in root.iter(option):
+                    setting.text = str(value)
+
+        # write out xml
+        options.write('dftgwbse.xml') 
 
 
     # just runs xtp_tools with CMDline call, expects
     # - an xyz file xyzname.xyz
-    # - the dftgwbse.xml options file
     # is present in the same directory
     def runXYZ(self, xyzname):
+
+        self.updateOptions()
+
         """ Runs VOTCA and moves results a job folder, if requested """
         if not os.path.exists(self.jobdir):
             os.makedirs(self.jobdir)
