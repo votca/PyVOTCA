@@ -5,10 +5,10 @@ import xml.etree.ElementTree as ET
 from .molecule import Molecule
 
 
-__all__ = ["VOTCA"]
+__all__ = ["XTP"]
 
 
-class VOTCA:
+class XTP:
 
     def __init__(self, threads=1, jobname='dftgwbse', jobdir='./'): 
         self.threads = threads
