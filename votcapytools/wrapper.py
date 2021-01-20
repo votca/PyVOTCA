@@ -1,52 +1,112 @@
 import os
 import h5py
+import numpy as np
 
 __all__ = ["VotcaWrapper"]
 
 
 class VotcaWrapper:
 
-    def __init__(self): pass
+    def __init__(self, threads=1, jobname='dftgwbse', jobdir='./'): 
+        self.threads = threads
+        self.jobname = jobname
+        self.jobdir = jobdir
+        self.orbfile = ''
+        self.functional = ''
+        self.hasData = False
+
 
     # just runs xtp_tools with CMDline call, expects
     # - an xyz file xyzname.xyz
     # - the dftgwbse.xml options file
     # is present in the same directory
-    def run(self, xyzname, threads=1, jobname="dftgwbse", jobdir="./"):
+    def runXYZ(self, xyzname):
         """ Runs VOTCA and moves results a job folder, if requested """
-        #name_disp = "{}_at{}_dir{}_{}".format(str(name), str(atom), str(direction), str(case))
-        votcacmd = "xtp_tools -e dftgwbse -o dftgwbse.xml -n {} -t {} > {}{}.log".format(str(xyzname), str(threads), str(jobdir), str(jobname))
+        if not os.path.exists(self.jobdir):
+            os.makedirs(self.jobdir)
+
+        votcacmd = "xtp_tools -e dftgwbse -o dftgwbse.xml -n {} -t {} > {}{}.log".format(str(xyzname), str(self.threads), str(self.jobdir), str(self.jobname))
         os.system(votcacmd)
         # copy orbfile, if jobdir is not default
-        if (jobdir != "./"):
-            os.replace('{}.orb'.format(str(xyzname)),'{}{}.orb'.format(str(jobdir),str(xyzname)))
+        if (self.jobdir != "./"):
+            self.orbfile = '{}{}.orb'.format(str(self.jobdir),str(xyzname))
+            os.replace('{}.orb'.format(str(xyzname)),self.orbfile)
+        else:
+            self.orbfile = '{}.orb'.format(str(xyzname))
+        
+        self.getEnergies(self.orbfile)
+
 
     # Reads energies from an existing HDF5 orb file
-    def getEnergies(self, kind, filename, level):
+    def getTotalEnergy(self, kind, level, orbfile=''):
         """ Read the energies from the orb file for a certain kind of particle/excitation.
 
         OUTPUT: numpy array with the energies of the particle/excitation kind.
         """
-        nameOrbFile = filename
-        f = h5py.File(nameOrbFile, 'r')
-        orb = f['QMdata']
-        occupied_levels = int(orb.attrs['occupied_levels'])
+        if self.hasData == False:
+            print("No energy has been stored!")
+            exit(0)
 
-        total_energy = orb.attrs['qm_energy']
-        if(kind == 'BSE_singlet' or kind == 'BSE_triplet'):
-            return(total_energy+orb[kind]['eigenvalues'][level])
+        occupied_levels = self.homo
+
+        total_energy = self.DFTenergy
+        if (kind == 'BSE_singlet'):
+           return(total_energy + self.BSE_singlet_energies[level])
+        elif (kind == 'BSE_triplet'):
+            return(total_energy + self.BSE_triplet_energies[level])
         elif (kind == 'QPdiag'):
             if (level < occupied_levels):
-                return(total_energy - orb[kind]['eigenvalues'][level])
+                return(total_energy - self.QPenergies_diag[level-qpmin])
             else:
-                return(total_energy + orb[kind]['eigenvalues'][level])
+                return(total_energy + self.QPenergies_diag[level-qpmin])
         elif (kind == 'QPpert'):
             if (level < occupied_levels):
-                return(total_energy - orb['QPpert_energies'][level])
+                return(total_energy - self.QPenergies[level-qpmin])
             else:
-                return(total_energy + orb['QPpert_energies'][level])
+                return(total_energy + self.QPenergies[level-qpmin])
         elif (kind == 'dft_tot'):
             return total_energy
         else:
             print("Invalid kind!")
             exit()
+
+
+    # Parse energies/info from HDF5
+    def getEnergies(self,orbfile=''):
+        nameOrbFile=''
+        if (self.orbfile == '' ):
+            if (orbfile == ''):
+                print("No HDF5 file for reading is known")
+                exit(0)
+            else:
+                nameOrbFile = orbfile
+        else:
+            nameOrbFile = self.orbfile
+
+        f = h5py.File(nameOrbFile, 'r')
+        orb = f['QMdata']
+        self.homo = int(orb.attrs['occupied_levels'])
+        self.DFTenergy = float(orb.attrs['qm_energy'])
+        self.KSenergies = np.array(orb['mos']['eigenvalues'][:])
+        self.QPenergies = np.array(orb['QPpert_energies'][:])
+        self.QPenergies_diag = np.array(orb['QPdiag']['eigenvalues'][:])
+        self.BSE_singlet_energies = np.array(orb['BSE_singlet']['eigenvalues'][:])
+        self.BSE_triplet_energies = np.array(orb['BSE_triplet']['eigenvalues'][:])
+        self.BSE_singlet_energies_dynamic = np.array(orb['BSE_singlet_dynamic'][:])
+        self.BSE_triplet_energies_dynamic = np.array(orb['BSE_triplet_dynamic'][:])
+        self.qpmin = int(orb.attrs['qpmin'])
+        self.qpmax = int(orb.attrs['qpmax'])
+        self.hasData = True
+        
+
+    def getKSenergies(self):
+        return self.KSenergies
+
+
+
+    def runMOL(self, mol):
+        # write mol to XYZfile
+        xyzname='system'
+        # will need a call to RDKIT xyz writer
+        # call runXYZ method
+        runXYZ(xyzname,threads,jobname,jobdir)
