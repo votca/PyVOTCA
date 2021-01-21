@@ -1,45 +1,43 @@
+"""Molecule representation."""
 import numpy as np
-import os
+from typing import Union
+from pathlib import Path
+
+Pathlike = Union[Path, str]
+
 
 class Molecule:
-    def __init__(self):
-        self.__elements = []
-        self.__coordinates = []
-        self.__name = "molecule"
+    """Molecule definition."""
 
-    def add_atom(self,element : str , x : float, y : float, z : float ):
-        self.__elements.append(element)
-        self.__coordinates.append(np.array([x, y, z]))
+    def __init__(self):
+        self.elements = None
+        self.coordinates = None
+        self.name = "molecule"
+
+    def add_atom(self, element: str, x: float, y: float, z: float):
+        self.elements.append(element)
+        self.coordinates.append(np.array([x, y, z]))
 
     def print(self):
-        for (element, coordinates) in zip(self.__elements, self.__coordinates):
+        for (element, coordinates) in zip(self.elements, self.coordinates):
             print(element, coordinates)
 
-    def readXYZfile(self, filename):
-        xyzfile=open(filename)
-        self.__name = os.path.splitext(filename)[0]
-        natoms = int(xyzfile.readline())
-        title = xyzfile.readline()[:-1]
-        for i in range(natoms):
-            line = xyzfile.readline().split()
-            self.__elements.append(line[0])
-            self.__coordinates.append(np.array([float(line[1]), float(line[2]), float(line[3])]))
-        xyzfile.close()
-    
-    def writeXYZfile(self, filename):
-        xyzfile=open(filename,"w")
-        natoms=len(self.__elements)
-        xyzfile.write("%d\n%s\n" % (natoms, self.__name+" created by PyVOTCA writer"))
-        for i in range(natoms):
-            xyzfile.write("%s  %f  %f  %f\n" % (self.__elements[i], float(self.__coordinates[i][0]), float(self.__coordinates[i][1]),float(self.__coordinates[i][2]) ))
-        xyzfile.close()
+    def readXYZfile(self, filename: Pathlike):
+        with open(filename, 'r') as handler:
+            lines = handler.readlines()
 
-    def getName(self):
-        return self.__name
+        self.name = Path(filename).stem
+        arr = [(row[0], np.array(row[1:], dtype=float)) for row in [
+            x.split() for x in lines[2:]]]
+        self.elements, self.coordinates = list(zip(*arr))
 
-    def setName(self, name):
-        self.__name = name
-    
-
-
-
+    def writeXYZfile(self, filename: Pathlike):
+        """Write the molecule in XYZ format."""
+        atoms = "\n".join(f"{elem} {xyz[0]:.4f} {xyz[1]:.4f} {xyz[2]:.4f}" for elem, xyz in zip(
+            self.elements, self.coordinates))
+        mol = f"""{len(self.elements)}
+{self.name} created by PyVOTCA writer
+{atoms}
+"""
+        with open(filename, "w") as xyzfile:
+            xyzfile.write(mol)

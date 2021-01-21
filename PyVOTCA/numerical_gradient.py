@@ -73,8 +73,6 @@ class NumericalGradient:
                     str(dr), str(atom), str(coordinate)))
                 votca.run(atom, coordinate, name, "minus", threads)
 
-    
-
     def getGradient(self, kind, energyLevel=None):
         """ Computes the gradient for a particle/excitation kind.
 
