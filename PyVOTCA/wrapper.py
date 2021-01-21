@@ -1,10 +1,12 @@
 """Votca Wrapper."""
 import os
+import subprocess
+import xml.etree.ElementTree as ET
+
 import h5py
 import numpy as np
-import xml.etree.ElementTree as ET
-from .molecule import Molecule
 
+from .molecule import Molecule
 
 __all__ = ["XTP"]
 
@@ -17,13 +19,13 @@ class XTP:
         self.jobdir = jobdir
         self.orbfile = ''
         self.hasData = False
-        self.options = dict()
+        self.options = {}
 
     def updateOptions(self):
 
         # parsing defaults
         votcashare = os.environ.get('VOTCASHARE')
-        default_options = votcashare+'/xtp/xml/dftgwbse.xml'
+        default_options = f'{votcashare}/xtp/xml/dftgwbse.xml'
         options = ET.parse(default_options)
         root = options.getroot()
 
@@ -50,15 +52,16 @@ class XTP:
         if not os.path.exists(self.jobdir):
             os.makedirs(self.jobdir)
 
-        votcacmd = "xtp_tools -e dftgwbse -o dftgwbse.xml -n {} -t {} > {}{}.log".format(
-            str(xyzname), str(self.threads), str(self.jobdir), str(self.jobname))
-        os.system(votcacmd)
+        votcacmd = f"xtp_tools -e dftgwbse -o dftgwbse.xml -n {xyzname} -t {self.threads} > {self.jobdir}{self.jobname}.log"
+
+        subprocess.check_output(votcacmd, shell=True, stderr=subprocess.STDOUT)
+
         # copy orbfile, if jobdir is not default
         if (self.jobdir != "./"):
-            self.orbfile = '{}{}.orb'.format(str(self.jobdir), str(xyzname))
-            os.replace('{}.orb'.format(str(xyzname)), self.orbfile)
+            self.orbfile = f'{self.jobdir}{xyzname}.orb'
+            os.replace(f'{xyzname}.orb', self.orbfile)
         else:
-            self.orbfile = '{}.orb'.format(str(xyzname))
+            self.orbfile = f'{xyzname}.orb'
 
         self.getEnergies(self.orbfile)
 
@@ -69,7 +72,7 @@ class XTP:
 
         OUTPUT: numpy array with the energies of the particle/excitation kind.
         """
-        if self.hasData == False:
+        if not self.hasData:
             print("No energy has been stored!")
             exit(0)
 
@@ -99,8 +102,8 @@ class XTP:
     # Parse energies/info from HDF5
     def getEnergies(self, orbfile=''):
         nameOrbFile = ''
-        if (self.orbfile == ''):
-            if (orbfile == ''):
+        if not self.orbfile:
+            if not orbfile:
                 print("No HDF5 file for reading is known")
                 exit(0)
             else:
@@ -108,8 +111,8 @@ class XTP:
         else:
             nameOrbFile = self.orbfile
 
-        f = h5py.File(nameOrbFile, 'r')
-        orb = f['QMdata']
+        with h5py.File(nameOrbFile, 'r') as handler:
+            orb = handler['QMdata']
         self.homo = int(orb.attrs['occupied_levels'])
         self.DFTenergy = float(orb.attrs['qm_energy'])
         self.KSenergies = np.array(orb['mos']['eigenvalues'][:])
@@ -129,11 +132,11 @@ class XTP:
 
     def getQPcorrections(self):
 
-        if self.hasData == False:
+        if not self.hasData:
             print("No energy has been stored!")
             exit(0)
 
-        QPcorrections = self.QPenergies - \
-            self.KSenergies[self.qpmin:self.qpmin+len(self.QPenergies)]
+        QPcorrections = self.QPenergies -
+        self.KSenergies[self.qpmin:self.qpmin + len(self.QPenergies)]
 
         return QPcorrections

@@ -2,8 +2,6 @@
 import copy
 import numpy as np
 import os
-from collections import namedtuple
-from itertools import cycle
 
 
 #from .wrapper import VOTCA as votca
@@ -38,9 +36,8 @@ class NumericalGradient:
         """ Run's a VOTCA simulation for every direction (perm) of the electric field with strength dE. """
         # Read XYZ
         filename = "{}.xyz".format(str(name))
-        xyzfile = open(filename)
-        xyz = cio.read_xyz(xyzfile)
-        xyzfile.close()
+        with open(filename, 'r') as xyzfile:
+            xyz = cio.read_xyz(xyzfile)
 
         # create a folder to contain all the results from the different experiments
         if(not os.path.exists('./experiments')):
@@ -99,6 +96,6 @@ class NumericalGradient:
 
                 # Compute derivative
                 gradient[atom, coordinate] = (
-                    Eplus - Eminus)/(2.0*self.dr*1.8897259886)
+                    Eplus - Eminus)/(2.0 * self.dr * 1.8897259886)
 
         return gradient

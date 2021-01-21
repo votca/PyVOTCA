@@ -29,7 +29,7 @@ class Molecule:
         self.name = Path(filename).stem
         arr = [(row[0], np.array(row[1:], dtype=float)) for row in [
             x.split() for x in lines[2:]]]
-        self.elements, self.coordinates = list(zip(*arr))
+        self.elements, self.coordinates = tuple(zip(*arr))
 
     def writeXYZfile(self, filename: Pathlike):
         """Write the molecule in XYZ format."""
