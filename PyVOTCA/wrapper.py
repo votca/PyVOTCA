@@ -136,7 +136,7 @@ class XTP:
             print("No energy has been stored!")
             exit(0)
 
-        QPcorrections = self.QPenergies -
-        self.KSenergies[self.qpmin:self.qpmin + len(self.QPenergies)]
+        QPcorrections = self.QPenergies - \
+            self.KSenergies[self.qpmin:self.qpmin + len(self.QPenergies)]
 
         return QPcorrections
