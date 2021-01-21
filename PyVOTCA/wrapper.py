@@ -113,22 +113,22 @@ class XTP:
 
         with h5py.File(nameOrbFile, 'r') as handler:
             orb = handler['QMdata']
-        self.homo = int(orb.attrs['occupied_levels'])
-        self.DFTenergy = float(orb.attrs['qm_energy'])
-        self.KSenergies = np.array(orb['mos']['eigenvalues'][:])
-        self.QPenergies = np.array(orb['QPpert_energies'][:])
-        self.QPenergies_diag = np.array(orb['QPdiag']['eigenvalues'][:])
-        self.BSE_singlet_energies = np.array(
-            orb['BSE_singlet']['eigenvalues'][:])
-        self.BSE_triplet_energies = np.array(
-            orb['BSE_triplet']['eigenvalues'][:])
-        self.BSE_singlet_energies_dynamic = np.array(
-            orb['BSE_singlet_dynamic'][:])
-        self.BSE_triplet_energies_dynamic = np.array(
-            orb['BSE_triplet_dynamic'][:])
-        self.qpmin = int(orb.attrs['qpmin'])
-        self.qpmax = int(orb.attrs['qpmax'])
-        self.hasData = True
+            self.homo = int(orb.attrs['occupied_levels'])
+            self.DFTenergy = float(orb.attrs['qm_energy'])
+            self.KSenergies = np.array(orb['mos']['eigenvalues'][:])
+            self.QPenergies = np.array(orb['QPpert_energies'][:])
+            self.QPenergies_diag = np.array(orb['QPdiag']['eigenvalues'][:])
+            self.BSE_singlet_energies = np.array(
+                orb['BSE_singlet']['eigenvalues'][:])
+            self.BSE_triplet_energies = np.array(
+                orb['BSE_triplet']['eigenvalues'][:])
+            self.BSE_singlet_energies_dynamic = np.array(
+                orb['BSE_singlet_dynamic'][:])
+            self.BSE_triplet_energies_dynamic = np.array(
+                orb['BSE_triplet_dynamic'][:])
+            self.qpmin = int(orb.attrs['qpmin'])
+            self.qpmax = int(orb.attrs['qpmax'])
+            self.hasData = True
 
     def getQPcorrections(self):
 
