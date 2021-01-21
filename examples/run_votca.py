@@ -21,11 +21,14 @@ votca=XTP()
 #votca.options['basisset']='cc-pvtz'
 
 # run for the molecule
-votca.run(mol)
+#votca.run(mol)
 
 ## only needed, if no run was performed but an existing HDF5 is read
-#votca.getEnergies('./CO.orb')
+votca.getEnergies('example.orb')
 
-# plotting QP corrections
+# Getting the plotting functions
 viz=Visualization(votca)
-viz.plotQPcorrections()
+# plotting QP corrections
+#viz.plotQPcorrections()
+# plotting absorption spectrum
+viz.plotAbsorptionGaussian()
