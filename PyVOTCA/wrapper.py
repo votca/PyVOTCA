@@ -128,6 +128,10 @@ class XTP:
                 orb['BSE_triplet_dynamic'][:])
             self.qpmin = int(orb.attrs['qpmin'])
             self.qpmax = int(orb.attrs['qpmax'])
+            self.transition_dipoles = []
+            td = orb['transition_dipoles']
+            for dset in td.keys():
+                self.transition_dipoles.append(td[dset][:])
             self.hasData = True
 
     def getQPcorrections(self):
