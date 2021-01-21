@@ -6,6 +6,7 @@ from .__version__ import __version__
 from .numerical_gradient import NumericalGradient
 from .wrapper import XTP
 from .molecule import Molecule
+from .visualization import Visualization
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 

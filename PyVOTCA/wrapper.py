@@ -124,6 +124,13 @@ class XTP:
         self.hasData = True
         
 
-    def getKSenergies(self):
-        return self.KSenergies
+    def getQPcorrections(self):
+        
+        if self.hasData == False:
+            print("No energy has been stored!")
+            exit(0)
+
+        QPcorrections =  self.QPenergies - self.KSenergies[self.qpmin:self.qpmin+len(self.QPenergies)]
+
+        return QPcorrections
 
