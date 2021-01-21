@@ -10,8 +10,8 @@ class Molecule:
     """Molecule definition."""
 
     def __init__(self):
-        self.elements = None
-        self.coordinates = None
+        self.elements = []
+        self.coordinates = []
         self.name = "molecule"
 
     def add_atom(self, element: str, x: float, y: float, z: float):
