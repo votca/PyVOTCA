@@ -85,14 +85,14 @@ class XTP:
             return(total_energy + self.BSE_triplet_energies[level])
         elif (kind == 'QPdiag'):
             if (level < occupied_levels):
-                return(total_energy - self.QPenergies_diag[level-qpmin])
+                return(total_energy - self.QPenergies_diag[level - qpmin])
             else:
-                return(total_energy + self.QPenergies_diag[level-qpmin])
+                return(total_energy + self.QPenergies_diag[level - qpmin])
         elif (kind == 'QPpert'):
             if (level < occupied_levels):
-                return(total_energy - self.QPenergies[level-qpmin])
+                return(total_energy - self.QPenergies[level - qpmin])
             else:
-                return(total_energy + self.QPenergies[level-qpmin])
+                return(total_energy + self.QPenergies[level - qpmin])
         elif (kind == 'dft_tot'):
             return total_energy
         else:
