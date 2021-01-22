@@ -3,6 +3,7 @@ import numpy as np
 from typing import Union
 from pathlib import Path
 import h5py
+from .utils import BOHR2ANG
 
 Pathlike = Union[Path, str]
 
@@ -15,12 +16,14 @@ class Molecule:
         self.coordinates = []
         self.name = "molecule"
         self.hasData = False
+        self.hasXYZ = False
 
     def add_atom(self, element: str, x: float, y: float, z: float):
         self.elements.append(element)
         self.coordinates.append(np.array([x, y, z]))
+        self.hasXYZ = True
 
-    def print(self):
+    def printXYZ(self):
         for (element, coordinates) in zip(self.elements, self.coordinates):
             print(element, coordinates)
 
@@ -32,6 +35,7 @@ class Molecule:
         arr = [(row[0], np.array(row[1:], dtype=float)) for row in [
             x.split() for x in lines[2:]]]
         self.elements, self.coordinates = tuple(zip(*arr))
+        self.hasXYZ = True
 
     def writeXYZfile(self, filename: Pathlike):
         """Write the molecule in XYZ format."""
@@ -74,14 +78,41 @@ class Molecule:
             return total_energy
         else:
             print("Invalid kind!")
-            exit()
+            exit(1)
 
     # Parse energies/info from HDF5
     def getEnergies(self, orbfile):
 
-
         with h5py.File(orbfile, 'r') as handler:
             orb = handler['QMdata']
+            # get coordinates
+            atoms = orb['qmmolecule']['qmatoms']
+            # coordinates are stored in Bohr!
+            arr = [(atom['element'][0].decode(), BOHR2ANG*np.array(
+                [atom['posX'][0], atom['posY'][0], atom['posZ'][0]], dtype=float)) for atom in atoms]
+            elements_in, coordinates_in = tuple(zip(*arr))
+
+            if not self.hasXYZ:
+                self.elements = elements_in
+                self.coordinates = coordinates_in
+            else:
+                for i in range(len(elements_in)):
+                    try:
+                        assert self.elements[i] == elements_in[i]
+                    except AssertionError:
+                        print('Element {} in molecule differs from element in orb file {}'.format(
+                            self.elements[i], elements_in[i]))
+                        exit(1)
+
+                    try:
+                        assert np.allclose(
+                            self.coordinates[i], coordinates_in[i], atol=1e-5)
+                    except AssertionError:
+                        print('Coordinates of element {} in molecle {} differsefrom element in orb file {}'.format(
+                            i, self.coordinates[i], coordinates_in[i]))
+                        exit(1)
+            self.hasXYZ = True
+
             self.homo = int(orb.attrs['occupied_levels'])
             self.DFTenergy = float(orb.attrs['qm_energy'])
             self.KSenergies = np.array(orb['mos']['eigenvalues'][:])
@@ -117,7 +148,7 @@ class Molecule:
     def getOscillatorStrengths(self, dynamic=False):
         if not self.hasData:
             print("No energy has been stored!")
-            exit(0)
+            exit(1)
 
         # get energies/oscillator strengths
         if dynamic:
