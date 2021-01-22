@@ -2,6 +2,7 @@ from PyVOTCA.molecule import Molecule
 from .utils import PATH_TEST
 from pathlib import Path
 import numpy as np
+import unittest
 
 
 def test_molecule_IO(tmp_path: Path):
@@ -71,3 +72,9 @@ def test_total_energies():
     triplet_dyn_en_ref = 0.0
     triplet_dyn_en = mol.getBSEtripletDynamicTotalEnergy(0)
     assert np.isclose(triplet_dyn_en, triplet_dyn_en_ref)
+
+class MyTestCase(unittest.TestCase):
+ 
+    def test_total_energies_exceptions(self):
+        mol=Molecule()
+        self.assertRaises(mol.getDFTEnergy(),'No energy has been stored!')
