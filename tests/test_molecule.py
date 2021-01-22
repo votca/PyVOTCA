@@ -72,6 +72,8 @@ def test_total_energies():
     triplet_dyn_en_ref = 0.0
     triplet_dyn_en = mol.getBSEtripletDynamicTotalEnergy(0)
     assert np.isclose(triplet_dyn_en, triplet_dyn_en_ref)
+    # requesting unavailable KS level
+    assert(np.isclose(mol.getKSTotalEnergy(1000),0.0))
 
 class ExceptionTests(unittest.TestCase):
  
