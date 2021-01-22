@@ -48,39 +48,115 @@ class Molecule:
         with open(filename, "w") as xyzfile:
             xyzfile.write(mol)
 
-    def getTotalEnergy(self, kind, level=''):
-        """ Read the energies from the orb file for a certain kind of particle/excitation.
-
-        OUTPUT: numpy array with the energies of the particle/excitation kind.
-        """
+    def getDFTEnergy(self):
+        """ Returns the DFT total energy."""
         if not self.hasData:
             print("No energy has been stored!")
             exit(1)
 
-        occupied_levels = self.homo
+        return self.DFTenergy
 
-        total_energy = self.DFTenergy
-        if (kind == 'BSE_singlet'):
-            return(total_energy + self.BSE_singlet_energies[level])
-        elif (kind == 'BSE_triplet'):
-            return(total_energy + self.BSE_triplet_energies[level])
-        elif (kind == 'QPdiag'):
-            if (level < occupied_levels):
-                return(total_energy - self.QPenergies_diag[level - self.qpmin])
-            else:
-                return(total_energy + self.QPenergies_diag[level - self.qpmin])
-        elif (kind == 'QPpert'):
-            if (level < occupied_levels):
-                return(total_energy - self.QPenergies[level - self.qpmin])
-            else:
-                return(total_energy + self.QPenergies[level - self.qpmin])
-        elif (kind == 'dft_tot'):
-            return total_energy
-        else:
-            print("Invalid kind!")
+    def getKSTotalEnergy(self, level=''):
+        """ Returns the excited state KS total energy."""
+        if not self.hasData:
+            print("No energy has been stored!")
             exit(1)
 
+        lumo = self.homo + 1
+
+        total_energy = self.DFTenergy
+        if (level < lumo):
+            return(total_energy - self.KSenergies[level])
+        elif level < len(self.KSenergies):
+            return(total_energy + self.KSenergies[level])
+        else:
+            print("Requested KS level {} does not exist.")
+            return 0.0
+
+    def getQPTotalEnergy(self, level=''):
+        """ Returns the excited state QP total energy."""
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(1)
+
+        lumo = self.homo + 1
+
+        total_energy = self.DFTenergy
+        if (level < lumo):
+            return(total_energy - self.QPenergies[level-self.qpmin])
+        elif level < len(self.KSenergies):
+            return(total_energy + self.QPenergies[level-self.qpmin])
+        else:
+            print("Requested QP level {} does not exist.")
+            return 0.0
+
+    def getQPdiagTotalEnergy(self, level=''):
+        """ Returns the excited state diag QP total energy."""
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(1)
+
+        lumo = self.homo + 1
+
+        total_energy = self.DFTenergy
+        if (level < lumo):
+            return(total_energy - self.QPenergies_diag[level-self.qpmin])
+        elif level < len(self.KSenergies):
+            return(total_energy + self.QPenergies_diag[level-self.qpmin])
+        else:
+            print("Requested diag QP level {} does not exist.")
+            return 0.0
+
+    def getBSEsingletTotalEnergy(self, level=''):
+        """ Returns the excited state BSE Singlet total energy."""
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(1)
+
+        if level < len(self.BSE_singlet_energies):
+            return(self.DFTenergy + self.BSE_singlet_energies[level])
+        else:
+            print("Requested BSE singlet level {} does not exist.")
+            return 0.0
+
+    def getBSEtripletTotalEnergy(self, level=''):
+        """ Returns the excited state BSE Singlet total energy."""
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(1)
+
+        if level < len(self.BSE_triplet_energies):
+            return(self.DFTenergy + self.BSE_triplet_energies[level])
+        else:
+            print("Requested BSE triplet level {} does not exist.")
+            return 0.0
+
+    def getBSEsingletDynamicTotalEnergy(self, level=''):
+        """ Returns the excited state BSE Singlet total energy."""
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(1)
+
+        if level < len(self.BSE_singlet_energies_dynamic):
+            return(self.DFTenergy + self.BSE_singlet_energies_dynamic[level])
+        else:
+            print("Requested dynamic BSE singlet level {} does not exist.")
+            return 0.0
+
+    def getBSEtripletDynamicTotalEnergy(self, level=''):
+        """ Returns the excited state BSE Singlet total energy."""
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(1)
+
+        if level < len(self.BSE_triplet_energies_dynamic):
+            return(self.DFTenergy + self.BSE_triplet_energies_dynamic[level])
+        else:
+            print("Requested dynamic BSE triplet level {} does not exist.")
+            return 0.0
+
     # Parse energies/info from HDF5
+
     def readORB(self, orbfile):
 
         with h5py.File(orbfile, 'r') as handler:
@@ -106,14 +182,14 @@ class Molecule:
 
                     try:
                         assert np.allclose(
-                            self.coordinates[i], coordinates_in[i], atol=1e-5)
+                            self.coordinates[i], coordinates_in[i])
                     except AssertionError:
                         print('Coordinates of element {} in molecle {} differsefrom element in orb file {}'.format(
                             i, self.coordinates[i], coordinates_in[i]))
                         exit(1)
             self.hasXYZ = True
 
-            self.homo = int(orb.attrs['occupied_levels'])
+            self.homo = int(orb.attrs['occupied_levels'])-1
             self.DFTenergy = float(orb.attrs['qm_energy'])
             self.KSenergies = np.array(orb['mos']['eigenvalues'][:])
             self.QPenergies = np.array(orb['QPpert_energies'][:])
