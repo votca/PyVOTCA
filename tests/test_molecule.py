@@ -77,4 +77,4 @@ class MyTestCase(unittest.TestCase):
  
     def test_total_energies_exceptions(self):
         mol=Molecule()
-        self.assertRaises(mol.getDFTEnergy(),Exception)
+        self.assertRaises(Exception,mol.getDFTEnergy())
