@@ -51,8 +51,7 @@ class Molecule:
     def getDFTEnergy(self):
         """ Returns the DFT total energy."""
         if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+            raise Exception("No energy has been stored!")
 
         return self.DFTenergy
 
