@@ -55,4 +55,19 @@ def test_total_energies():
     qpd_lumo_en_ref = -113.14263116
     qpd_lumo_en = mol.getQPdiagTotalEnergy(level=7)
     assert np.isclose(qpd_lumo_en, qpd_lumo_en_ref)
-
+    # BSE Singlet total energies
+    singlet_en_ref = -112.93707785
+    singlet_en = mol.getBSEsingletTotalEnergy(0)
+    assert np.isclose(singlet_en, singlet_en_ref)
+    # BSE triplet total energies
+    triplet_en_ref = 0.0
+    triplet_en = mol.getBSEtripletTotalEnergy(0)
+    assert np.isclose(triplet_en, triplet_en_ref)
+    # BSE dynamic Singlet total energies
+    singlet_dyn_en_ref = 0.0
+    singlet_dyn_en = mol.getBSEsingletDynamicTotalEnergy(0)
+    assert np.isclose(singlet_dyn_en, singlet_dyn_en_ref)
+    # BSE dynamic triplet total energies
+    triplet_dyn_en_ref = 0.0
+    triplet_dyn_en = mol.getBSEtripletDynamicTotalEnergy(0)
+    assert np.isclose(triplet_dyn_en, triplet_dyn_en_ref)
