@@ -78,6 +78,16 @@ def test_total_energies():
     assert(np.isclose(mol.getQPTotalEnergy(1000),0.0))
     # requesting unavailable QP diag level
     assert(np.isclose(mol.getQPdiagTotalEnergy(1000),0.0))
+    # requesting unavailable BSE singlet level
+    assert(np.isclose(mol.getBSEsingletTotalEnergy(1000),0.0))
+    # requesting unavailable BSE triplet level
+    assert(np.isclose(mol.getBSEtripletTotalEnergy(1000),0.0))
+    # requesting unavailable BSE singlet dynamic level
+    assert(np.isclose(mol.getBSEsingletDynamicTotalEnergy(1000),0.0))
+    # requesting unavailable BSE triplet dynamic level
+    assert(np.isclose(mol.getBSEtripletDynamicTotalEnergy(1000),0.0))
+
+
     
 
 class ExceptionTests(unittest.TestCase):
