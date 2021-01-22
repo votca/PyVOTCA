@@ -61,11 +61,11 @@ def test_total_energies():
     singlet_en = mol.getBSEsingletTotalEnergy(0)
     assert np.isclose(singlet_en, singlet_en_ref)
     # BSE triplet total energies
-    triplet_en_ref = 0.0
+    triplet_en_ref = -113.02898113
     triplet_en = mol.getBSEtripletTotalEnergy(0)
     assert np.isclose(triplet_en, triplet_en_ref)
     # BSE dynamic Singlet total energies
-    singlet_dyn_en_ref = 0.0
+    singlet_dyn_en_ref = -112.94138747
     singlet_dyn_en = mol.getBSEsingletDynamicTotalEnergy(0)
     assert np.isclose(singlet_dyn_en, singlet_dyn_en_ref)
     # BSE dynamic triplet total energies
@@ -74,6 +74,11 @@ def test_total_energies():
     assert np.isclose(triplet_dyn_en, triplet_dyn_en_ref)
     # requesting unavailable KS level
     assert(np.isclose(mol.getKSTotalEnergy(1000),0.0))
+    # requesting unavailable QP level
+    assert(np.isclose(mol.getQPTotalEnergy(1000),0.0))
+    # requesting unavailable QP diag level
+    assert(np.isclose(mol.getQPdiagTotalEnergy(1000),0.0))
+    
 
 class ExceptionTests(unittest.TestCase):
  
