@@ -2,6 +2,7 @@
 import numpy as np
 from typing import Union
 from pathlib import Path
+import h5py
 
 Pathlike = Union[Path, str]
 
@@ -13,6 +14,7 @@ class Molecule:
         self.elements = []
         self.coordinates = []
         self.name = "molecule"
+        self.hasData = False
 
     def add_atom(self, element: str, x: float, y: float, z: float):
         self.elements.append(element)
@@ -41,3 +43,90 @@ class Molecule:
 """
         with open(filename, "w") as xyzfile:
             xyzfile.write(mol)
+
+    def getTotalEnergy(self, kind, level):
+        """ Read the energies from the orb file for a certain kind of particle/excitation.
+
+        OUTPUT: numpy array with the energies of the particle/excitation kind.
+        """
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(0)
+
+        occupied_levels = self.homo
+
+        total_energy = self.DFTenergy
+        if (kind == 'BSE_singlet'):
+            return(total_energy + self.BSE_singlet_energies[level])
+        elif (kind == 'BSE_triplet'):
+            return(total_energy + self.BSE_triplet_energies[level])
+        elif (kind == 'QPdiag'):
+            if (level < occupied_levels):
+                return(total_energy - self.QPenergies_diag[level - self.qpmin])
+            else:
+                return(total_energy + self.QPenergies_diag[level - self.qpmin])
+        elif (kind == 'QPpert'):
+            if (level < occupied_levels):
+                return(total_energy - self.QPenergies[level - self.qpmin])
+            else:
+                return(total_energy + self.QPenergies[level - self.qpmin])
+        elif (kind == 'dft_tot'):
+            return total_energy
+        else:
+            print("Invalid kind!")
+            exit()
+
+    # Parse energies/info from HDF5
+    def getEnergies(self, orbfile):
+
+
+        with h5py.File(orbfile, 'r') as handler:
+            orb = handler['QMdata']
+            self.homo = int(orb.attrs['occupied_levels'])
+            self.DFTenergy = float(orb.attrs['qm_energy'])
+            self.KSenergies = np.array(orb['mos']['eigenvalues'][:])
+            self.QPenergies = np.array(orb['QPpert_energies'][:])
+            self.QPenergies_diag = np.array(orb['QPdiag']['eigenvalues'][:])
+            self.BSE_singlet_energies = np.array(
+                orb['BSE_singlet']['eigenvalues'][:])
+            self.BSE_triplet_energies = np.array(
+                orb['BSE_triplet']['eigenvalues'][:])
+            self.BSE_singlet_energies_dynamic = np.array(
+                orb['BSE_singlet_dynamic'][:])
+            self.BSE_triplet_energies_dynamic = np.array(
+                orb['BSE_triplet_dynamic'][:])
+            self.qpmin = int(orb.attrs['qpmin'])
+            self.qpmax = int(orb.attrs['qpmax'])
+            self.transition_dipoles = []
+            td = orb['transition_dipoles']
+            for dset in td.keys():
+                self.transition_dipoles.append(td[dset][:])
+            self.hasData = True
+
+    def getQPcorrections(self):
+
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(0)
+
+        QPcorrections = self.QPenergies - \
+            self.KSenergies[self.qpmin:self.qpmin + len(self.QPenergies)]
+
+        return QPcorrections
+
+    def getOscillatorStrengths(self, dynamic=False):
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(0)
+
+        # get energies/oscillator strengths
+        if dynamic:
+            energy = self.BSE_singlet_energies_dynamic
+        else:
+            energy = self.BSE_singlet_energies
+        td = self.transition_dipoles
+        osc = []
+        for i in range(len(energy)):
+            osc.append(2./3. * energy[i] * np.sum(np.power(td[i], 2)))
+
+        return (energy, osc)
