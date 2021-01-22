@@ -128,6 +128,10 @@ class XTP:
                 orb['BSE_triplet_dynamic'][:])
             self.qpmin = int(orb.attrs['qpmin'])
             self.qpmax = int(orb.attrs['qpmax'])
+            self.transition_dipoles = []
+            td = orb['transition_dipoles']
+            for dset in td.keys():
+                self.transition_dipoles.append(td[dset][:])
             self.hasData = True
 
     def getQPcorrections(self):
@@ -140,3 +144,20 @@ class XTP:
             self.KSenergies[self.qpmin:self.qpmin + len(self.QPenergies)]
 
         return QPcorrections
+
+    def getOscillatorStrengths(self, dynamic=False):
+        if not self.hasData:
+            print("No energy has been stored!")
+            exit(0)
+
+        # get energies/oscillator strengths
+        if dynamic:
+            energy = self.BSE_singlet_energies_dynamic
+        else:
+            energy = self.BSE_singlet_energies
+        td = self.transition_dipoles
+        osc = []
+        for i in range(len(energy)):
+            osc.append(2./3. * energy[i] * np.sum(np.power(td[i], 2)))
+
+        return (energy, osc)
