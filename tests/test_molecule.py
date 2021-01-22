@@ -27,7 +27,7 @@ def test_atom_add():
 def test_total_energies():
     """Check that total energies are reported correctly."""
     mol = Molecule()
-    mol.readORB('example.orb')
+    mol.readORB(PATH_TEST / "example.orb")
     dft_en = mol.getTotalEnergy(kind='dft_tot')
     dft_en_ref = -113.21956697102704
     assert np.isclose(dft_en,dft_en_ref)
