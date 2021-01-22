@@ -63,7 +63,7 @@ class XTP:
         else:
             self.orbfile = f'{xyzname}.orb'
 
-        self.mol.getEnergies(self.orbfile)
+        self.mol.readORB(self.orbfile)
 
     # Reads energies from an existing HDF5 orb file
 

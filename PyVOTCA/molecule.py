@@ -48,14 +48,14 @@ class Molecule:
         with open(filename, "w") as xyzfile:
             xyzfile.write(mol)
 
-    def getTotalEnergy(self, kind, level):
+    def getTotalEnergy(self, kind, level=''):
         """ Read the energies from the orb file for a certain kind of particle/excitation.
 
         OUTPUT: numpy array with the energies of the particle/excitation kind.
         """
         if not self.hasData:
             print("No energy has been stored!")
-            exit(0)
+            exit(1)
 
         occupied_levels = self.homo
 
@@ -81,7 +81,7 @@ class Molecule:
             exit(1)
 
     # Parse energies/info from HDF5
-    def getEnergies(self, orbfile):
+    def readORB(self, orbfile):
 
         with h5py.File(orbfile, 'r') as handler:
             orb = handler['QMdata']
