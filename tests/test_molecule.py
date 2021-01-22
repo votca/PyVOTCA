@@ -73,8 +73,8 @@ def test_total_energies():
     triplet_dyn_en = mol.getBSEtripletDynamicTotalEnergy(0)
     assert np.isclose(triplet_dyn_en, triplet_dyn_en_ref)
 
-class MyTestCase(unittest.TestCase):
+class ExceptionTests(unittest.TestCase):
  
-    def test_total_energies_exceptions(self):
+    def test_for_data(self):
         mol=Molecule()
-        self.assertRaises(Exception,mol.getDFTEnergy)
+        self.assertRaises(Exception,mol.checkData)

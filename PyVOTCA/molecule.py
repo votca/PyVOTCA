@@ -50,16 +50,13 @@ class Molecule:
 
     def getDFTEnergy(self):
         """ Returns the DFT total energy."""
-        if not self.hasData:
-            raise Exception("No energy has been stored!")
+        self.checkData()
 
         return self.DFTenergy
 
     def getKSTotalEnergy(self, level=''):
         """ Returns the excited state KS total energy."""
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+        self.checkData()
 
         lumo = self.homo + 1
 
@@ -74,9 +71,7 @@ class Molecule:
 
     def getQPTotalEnergy(self, level=''):
         """ Returns the excited state QP total energy."""
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+        self.checkData()
 
         lumo = self.homo + 1
 
@@ -91,9 +86,7 @@ class Molecule:
 
     def getQPdiagTotalEnergy(self, level=''):
         """ Returns the excited state diag QP total energy."""
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+        self.checkData()
 
         lumo = self.homo + 1
 
@@ -108,9 +101,7 @@ class Molecule:
 
     def getBSEsingletTotalEnergy(self, level=''):
         """ Returns the excited state BSE Singlet total energy."""
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+        self.checkData()
 
         if level < len(self.BSE_singlet_energies):
             return(self.DFTenergy + self.BSE_singlet_energies[level])
@@ -120,9 +111,7 @@ class Molecule:
 
     def getBSEtripletTotalEnergy(self, level=''):
         """ Returns the excited state BSE Singlet total energy."""
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+        self.checkData()
 
         if level < len(self.BSE_triplet_energies):
             return(self.DFTenergy + self.BSE_triplet_energies[level])
@@ -132,9 +121,7 @@ class Molecule:
 
     def getBSEsingletDynamicTotalEnergy(self, level=''):
         """ Returns the excited state BSE Singlet total energy."""
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+        self.checkData()
 
         if level < len(self.BSE_singlet_energies_dynamic):
             return(self.DFTenergy + self.BSE_singlet_energies_dynamic[level])
@@ -144,9 +131,7 @@ class Molecule:
 
     def getBSEtripletDynamicTotalEnergy(self, level=''):
         """ Returns the excited state BSE Singlet total energy."""
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+        self.checkData()
 
         if level < len(self.BSE_triplet_energies_dynamic):
             return(self.DFTenergy + self.BSE_triplet_energies_dynamic[level])
@@ -210,10 +195,7 @@ class Molecule:
             self.hasData = True
 
     def getQPcorrections(self):
-
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(0)
+        self.checkData()
 
         QPcorrections = self.QPenergies - \
             self.KSenergies[self.qpmin:self.qpmin + len(self.QPenergies)]
@@ -221,9 +203,7 @@ class Molecule:
         return QPcorrections
 
     def getOscillatorStrengths(self, dynamic=False):
-        if not self.hasData:
-            print("No energy has been stored!")
-            exit(1)
+        self.checkData()
 
         # get energies/oscillator strengths
         if dynamic:
@@ -236,3 +216,7 @@ class Molecule:
             osc.append(2./3. * energy[i] * np.sum(np.power(td[i], 2)))
 
         return (energy, osc)
+
+    def checkData(self):
+        if not self.hasData:
+            raise Exception("No energy has been stored!")
