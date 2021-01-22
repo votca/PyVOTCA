@@ -2,13 +2,12 @@
 from .wrapper import XTP
 import numpy as np
 import matplotlib.pyplot as plt
-from .utils import Utils
+from .utils import H2EV
 
 
 class Visualization:
     def __init__(self, votca: XTP):
         self.votca = votca
-        self.constants = Utils()
 
     def plotQPcorrections(self):
         QPcorrections = self.votca.getQPcorrections()
@@ -25,7 +24,7 @@ class Visualization:
         energy, osc = self.votca.getOscillatorStrengths(dynamic)
 
         # convert energies from Hartree to eV
-        energy *= self.constants.h2ev  # to eV
+        energy *= H2EV  # to eV
         # make a stick plot with oscillator strength
         plt.stem(energy, osc, basefmt=" ")
         # apply unormalized Gaussian lineshape
