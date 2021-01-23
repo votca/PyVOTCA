@@ -98,9 +98,14 @@ class ExceptionTests(unittest.TestCase):
         self.assertRaises(Exception,mol.getDFTEnergy)
         self.assertRaises(Exception,mol.getKSTotalEnergy,1)
 
-    def test_existing_molecule_element(self):
+    def test_existing_molecule_coordinates(self):
         mol=Molecule()
         mol.add_atom("C", 0,0,0)
         mol.add_atom("O", 1.3,0,0)
         self.assertRaises(Exception,mol.readORB,PATH_TEST / "example.orb")
-        
+
+    def test_existing_molecule_elements(self):
+        mol=Molecule()
+        mol.add_atom("C", 0,0,0)
+        mol.add_atom("H", 1.3,0,0)
+        self.assertRaises(Exception,mol.readORB,PATH_TEST / "example.orb")
