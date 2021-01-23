@@ -95,8 +95,6 @@ def test_QP_corrections():
     qp_corr_ref = np.array([-0.66958499, -0.58588884, -0.10798883, -0.12099109, -0.11734361, -0.11734361, -0.11965084, 0.13114994, 0.13114994,
                             0.0762104, 0.07464675, 0.0875364, 0.0875364, 0.09781442, 0.10893873, 0.10893873, 0.14590749, 0.12154184, 0.1215417, 0.10959073])
     qp_corr = mol.getQPcorrections()
-    print(qp_corr.shape)
-    print(qp_corr_ref.shape)
     assert(np.allclose(qp_corr, qp_corr_ref))
 
 

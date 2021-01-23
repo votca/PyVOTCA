@@ -194,7 +194,7 @@ class Molecule:
         QPcorrections = self.QPenergies - \
             self.KSenergies[self.qpmin:self.qpmin + len(self.QPenergies)]
 
-        return QPcorrections
+        return QPcorrections.flatten()
 
     def getOscillatorStrengths(self, dynamic=False):
         self.checkData()
