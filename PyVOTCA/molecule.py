@@ -169,17 +169,17 @@ class Molecule:
 
             self.homo = int(orb.attrs['occupied_levels'])-1
             self.DFTenergy = float(orb.attrs['qm_energy'])
-            self.KSenergies = np.array(orb['mos']['eigenvalues'][:])
-            self.QPenergies = np.array(orb['QPpert_energies'][:])
-            self.QPenergies_diag = np.array(orb['QPdiag']['eigenvalues'][:])
+            self.KSenergies = np.array(orb['mos']['eigenvalues'][:]).flatten()
+            self.QPenergies = np.array(orb['QPpert_energies'][:]).flatten()
+            self.QPenergies_diag = np.array(orb['QPdiag']['eigenvalues'][:]).flatten()
             self.BSE_singlet_energies = np.array(
-                orb['BSE_singlet']['eigenvalues'][:])
+                orb['BSE_singlet']['eigenvalues'][:]).flatten()
             self.BSE_triplet_energies = np.array(
-                orb['BSE_triplet']['eigenvalues'][:])
+                orb['BSE_triplet']['eigenvalues'][:]).flatten()
             self.BSE_singlet_energies_dynamic = np.array(
-                orb['BSE_singlet_dynamic'][:])
+                orb['BSE_singlet_dynamic'][:]).flatten()
             self.BSE_triplet_energies_dynamic = np.array(
-                orb['BSE_triplet_dynamic'][:])
+                orb['BSE_triplet_dynamic'][:]).flatten()
             self.qpmin = int(orb.attrs['qpmin'])
             self.qpmax = int(orb.attrs['qpmax'])
             self.transition_dipoles = []
