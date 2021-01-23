@@ -95,3 +95,5 @@ class ExceptionTests(unittest.TestCase):
     def test_for_data(self):
         mol=Molecule()
         self.assertRaises(Exception,mol.checkData)
+        self.assertRaises(Exception,mol.getDFTEnergy)
+        self.assertRaises(Exception,mol.getKSTotalEnergy,1)
