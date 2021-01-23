@@ -97,6 +97,8 @@ class ExceptionTests(unittest.TestCase):
         self.assertRaises(Exception,mol.checkData)
         self.assertRaises(Exception,mol.getDFTEnergy)
         self.assertRaises(Exception,mol.getKSTotalEnergy,1)
+        self.assertRaises(Exception,mol.getQPcorrections)
+        self.assertRaises(Exception,mol.getOscillatorStrengths)
 
     def test_existing_molecule_coordinates(self):
         mol=Molecule()
