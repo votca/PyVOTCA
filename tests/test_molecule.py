@@ -73,41 +73,48 @@ def test_total_energies():
     triplet_dyn_en = mol.getBSEtripletDynamicTotalEnergy(0)
     assert np.isclose(triplet_dyn_en, triplet_dyn_en_ref)
     # requesting unavailable KS level
-    assert(np.isclose(mol.getKSTotalEnergy(1000),0.0))
+    assert(np.isclose(mol.getKSTotalEnergy(1000), 0.0))
     # requesting unavailable QP level
-    assert(np.isclose(mol.getQPTotalEnergy(1000),0.0))
+    assert(np.isclose(mol.getQPTotalEnergy(1000), 0.0))
     # requesting unavailable QP diag level
-    assert(np.isclose(mol.getQPdiagTotalEnergy(1000),0.0))
+    assert(np.isclose(mol.getQPdiagTotalEnergy(1000), 0.0))
     # requesting unavailable BSE singlet level
-    assert(np.isclose(mol.getBSEsingletTotalEnergy(1000),0.0))
+    assert(np.isclose(mol.getBSEsingletTotalEnergy(1000), 0.0))
     # requesting unavailable BSE triplet level
-    assert(np.isclose(mol.getBSEtripletTotalEnergy(1000),0.0))
+    assert(np.isclose(mol.getBSEtripletTotalEnergy(1000), 0.0))
     # requesting unavailable BSE singlet dynamic level
-    assert(np.isclose(mol.getBSEsingletDynamicTotalEnergy(1000),0.0))
+    assert(np.isclose(mol.getBSEsingletDynamicTotalEnergy(1000), 0.0))
     # requesting unavailable BSE triplet dynamic level
-    assert(np.isclose(mol.getBSEtripletDynamicTotalEnergy(1000),0.0))
+    assert(np.isclose(mol.getBSEtripletDynamicTotalEnergy(1000), 0.0))
 
 
-    
+def test_QP_corrections():
+    """Check that QP corrections are reported correctly."""
+    mol = Molecule()
+    mol.readORB(PATH_TEST / "example.orb")
+    qp_corr_ref = np.array([-0.66958499, -0.58588884, -0.10798883, -0.12099109, -0.11734361, -0.11734361, -0.11965084, 0.13114994, 0.13114994,
+                            0.0762104, 0.07464675, 0.0875364, 0.0875364, 0.09781442, 0.10893873, 0.10893873, 0.14590749, 0.12154184, 0.1215417, 0.10959073])
+    qp_corr = mol.getQPcorrections()
+    assert(np.allclose(qp_corr,qp_corr_ref))
 
 class ExceptionTests(unittest.TestCase):
- 
+
     def test_for_data(self):
-        mol=Molecule()
-        self.assertRaises(Exception,mol.checkData)
-        self.assertRaises(Exception,mol.getDFTEnergy)
-        self.assertRaises(Exception,mol.getKSTotalEnergy,1)
-        self.assertRaises(Exception,mol.getQPcorrections)
-        self.assertRaises(Exception,mol.getOscillatorStrengths)
+        mol = Molecule()
+        self.assertRaises(Exception, mol.checkData)
+        self.assertRaises(Exception, mol.getDFTEnergy)
+        self.assertRaises(Exception, mol.getKSTotalEnergy, 1)
+        self.assertRaises(Exception, mol.getQPcorrections)
+        self.assertRaises(Exception, mol.getOscillatorStrengths)
 
     def test_existing_molecule_coordinates(self):
-        mol=Molecule()
-        mol.add_atom("C", 0,0,0)
-        mol.add_atom("O", 1.3,0,0)
-        self.assertRaises(Exception,mol.readORB,PATH_TEST / "example.orb")
+        mol = Molecule()
+        mol.add_atom("C", 0, 0, 0)
+        mol.add_atom("O", 1.3, 0, 0)
+        self.assertRaises(Exception, mol.readORB, PATH_TEST / "example.orb")
 
     def test_existing_molecule_elements(self):
-        mol=Molecule()
-        mol.add_atom("C", 0,0,0)
-        mol.add_atom("H", 1.3,0,0)
-        self.assertRaises(Exception,mol.readORB,PATH_TEST / "example.orb")
+        mol = Molecule()
+        mol.add_atom("C", 0, 0, 0)
+        mol.add_atom("H", 1.3, 0, 0)
+        self.assertRaises(Exception, mol.readORB, PATH_TEST / "example.orb")
