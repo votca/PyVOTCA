@@ -98,6 +98,18 @@ def test_QP_corrections():
     assert(np.allclose(qp_corr, qp_corr_ref))
 
 
+def test_oscillatorStrengths():
+    """Check that oscillator strengths  are reported correctly."""
+    mol = Molecule()
+    mol.readORB(PATH_TEST / "example.orb")
+    e_ref = np.array(
+        [0.28248912, 0.28248905, 0.2903493,  0.31353545, 0.31353545])
+    osc_ref = np.array([3.93892214e-02, 3.93892190e-02, 7.26550288e-10, 4.52526432e-16,
+                        4.52526432e-16])
+    e, osc = mol.getOscillatorStrengths()
+    assert(np.allclose(e, e_ref))
+    assert(np.allclose(osc, osc_ref))
+
 class ExceptionTests(unittest.TestCase):
 
     def test_for_data(self):

@@ -186,6 +186,7 @@ class Molecule:
             td = orb['transition_dipoles']
             for dset in td.keys():
                 self.transition_dipoles.append(td[dset][:])
+            self.transition_dipoles = np.array(self.transition_dipoles)
             self.hasData = True
 
     def getQPcorrections(self):
@@ -209,7 +210,7 @@ class Molecule:
         for i in range(len(energy)):
             osc.append(2./3. * energy[i] * np.sum(np.power(td[i], 2)))
 
-        return (energy, osc)
+        return (energy, np.array(osc))
 
     def checkData(self):
         if not self.hasData:
