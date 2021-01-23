@@ -157,20 +157,14 @@ class Molecule:
                 self.coordinates = coordinates_in
             else:
                 for i in range(len(elements_in)):
-                    try:
-                        assert self.elements[i] == elements_in[i]
-                    except AssertionError:
-                        print('Element {} in molecule differs from element in orb file {}'.format(
+                    if not self.elements[i] == elements_in[i]:
+                        raise Exception('Element {} in molecule differs from element {} in orb file!'.format(
                             self.elements[i], elements_in[i]))
-                        exit(1)
 
-                    try:
-                        assert np.allclose(
-                            self.coordinates[i], coordinates_in[i])
-                    except AssertionError:
-                        print('Coordinates of element {} in molecle {} differsefrom element in orb file {}'.format(
+                    if not np.allclose(self.coordinates[i], coordinates_in[i]):
+                        raise Exception('Coordinates of element {} in molecle {} differ from coordinates in orb file {}'.format(
                             i, self.coordinates[i], coordinates_in[i]))
-                        exit(1)
+
             self.hasXYZ = True
 
             self.homo = int(orb.attrs['occupied_levels'])-1
