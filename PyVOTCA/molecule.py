@@ -171,7 +171,8 @@ class Molecule:
             self.DFTenergy = float(orb.attrs['qm_energy'])
             self.KSenergies = np.array(orb['mos']['eigenvalues'][:]).flatten()
             self.QPenergies = np.array(orb['QPpert_energies'][:]).flatten()
-            self.QPenergies_diag = np.array(orb['QPdiag']['eigenvalues'][:]).flatten()
+            self.QPenergies_diag = np.array(
+                orb['QPdiag']['eigenvalues'][:]).flatten()
             self.BSE_singlet_energies = np.array(
                 orb['BSE_singlet']['eigenvalues'][:]).flatten()
             self.BSE_triplet_energies = np.array(
