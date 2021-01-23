@@ -109,6 +109,14 @@ def test_oscillatorStrengths():
     e, osc = mol.getOscillatorStrengths()
     assert(np.allclose(e, e_ref))
     assert(np.allclose(osc, osc_ref))
+    e_dyn_ref = np.array(
+        [0.2781795, 0.27817942, 0.28617289, 0.3092472, 0.3092472])
+    osc_dyn_ref = np.array([3.87883037e-02, 3.87882995e-02, 7.16099511e-10, 4.46337187e-16,
+                            4.46337187e-16])
+    e_dyn, osc_dyn = mol.getOscillatorStrengths(dynamic=True)
+    assert(np.allclose(e_dyn, e_dyn_ref))
+    assert(np.allclose(osc_dyn, osc_dyn_ref))
+
 
 class ExceptionTests(unittest.TestCase):
 
