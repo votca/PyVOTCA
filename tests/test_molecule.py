@@ -69,7 +69,7 @@ def test_total_energies():
     singlet_dyn_en = mol.getBSEsingletDynamicTotalEnergy(0)
     assert np.isclose(singlet_dyn_en, singlet_dyn_en_ref)
     # BSE dynamic triplet total energies
-    triplet_dyn_en_ref = 0.0
+    triplet_dyn_en_ref = -113.031518836
     triplet_dyn_en = mol.getBSEtripletDynamicTotalEnergy(0)
     assert np.isclose(triplet_dyn_en, triplet_dyn_en_ref)
     # requesting unavailable KS level
