@@ -1,19 +1,19 @@
 """Visualization module."""
-from .wrapper import XTP
+from .molecule import Molecule
 import numpy as np
 import matplotlib.pyplot as plt
 from .utils import H2EV
 
 
 class Visualization:
-    def __init__(self, votca: XTP):
-        self.votca = votca
+    def __init__(self, mol: Molecule):
+        self.mol = mol
 
     def plotQPcorrections(self):
-        QPcorrections = self.votca.getQPcorrections()
-        qpmin = self.votca.qpmin
-        qpmax = self.votca.qpmax + 1
-        correctedKS = self.votca.KSenergies[qpmin:qpmax]
+        QPcorrections = self.mol.getQPcorrections()
+        qpmin = self.mol.qpmin
+        qpmax = self.mol.qpmax + 1
+        correctedKS = self.mol.KSenergies[qpmin:qpmax]
         plt.plot(correctedKS, QPcorrections, 'ro')
         plt.xlabel('KS Energy (eV)')
         plt.ylabel('QP correction (eV)')
@@ -21,7 +21,7 @@ class Visualization:
 
     def plotAbsorptionGaussian(self, dynamic=False, min=0.0, max=10.0, points=1000, sigma=0.2):
 
-        energy, osc = self.votca.getOscillatorStrengths(dynamic)
+        energy, osc = self.mol.getOscillatorStrengths(dynamic)
 
         # convert energies from Hartree to eV
         energy *= H2EV  # to eV
