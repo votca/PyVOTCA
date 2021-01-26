@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 from .numerical_gradient import NumericalGradient
+from .schemas import validate_input
 
 
 def exists(input_file: str) -> Path:
@@ -35,22 +36,24 @@ def xtp_gradient(args: argparse.Namespace):
 def parse_user_arguments() -> argparse.Namespace:
     """Read the user arguments."""
     parser = argparse.ArgumentParser("xtp_gradient")
-    parser.add_argument("-n", "--name", help="Molecule name")
-    parser.add_argument("-t", "--threads", help="Number of threads")
+    parser.add_argument(
+        "-i", "--input", help="Input file in YAML format", type=exists)
 
     # Read the arguments
     args = parser.parse_args()
 
-    if args.name is None:
+    if args.input is None:
         parser.print_help()
         sys.exit()
 
-    return args
+    return args.input
 
 
 def main():
-    args = parse_user_arguments()
-    xtp_gradient(args)
+    inp = parse_user_arguments()
+    args = validate_input(inp)
+    print(args)
+    # xtp_gradient(args)
 
 
 if __name__ == "__main__":

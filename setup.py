@@ -38,8 +38,7 @@ setup(
             'xtp_gradient=PyVOTCA.xtp_gradient:main',
         ]
     },
-
-    install_requires=["h5py", "matplotlib", "numpy", "scipy"],
+    install_requires=["h5py", "matplotlib", "numpy", "pyyaml", "schema", "scipy"],
     extras_require={
         'test': ['coverage', 'mypy', 'pycodestyle', 'pytest>=3.9',
                  'pytest-asyncio', 'pytest-cov', 'pytest-mock'],
