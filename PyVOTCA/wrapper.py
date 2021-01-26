@@ -2,21 +2,24 @@
 import os
 import subprocess
 import xml.etree.ElementTree as ET
+from typing import Any, Dict, Optional
 
 from .molecule import Molecule
+from .xml_editor import edit_xml
 
 __all__ = ["XTP"]
 
 
 class XTP:
 
-    def __init__(self, mol: Molecule, threads=1, jobname='dftgwbse', jobdir='./'):
+    def __init__(self, mol: Molecule, threads=1, jobname='dftgwbse',
+                 options: Optional[Dict[str, Any]] = {}, jobdir='./'):
         self.mol = mol
         self.threads = threads
         self.jobname = jobname
         self.jobdir = jobdir
         self.orbfile = ''
-        self.options = {}
+        self.options = options
 
     def updateOptions(self):
 
@@ -25,18 +28,13 @@ class XTP:
         default_options = f'{votcashare}/xtp/xml/dftgwbse.xml'
         options = ET.parse(default_options)
         root = options.getroot()
-
-        for option, value in self.options.items():
-            if value != '':
-                for setting in root.iter(option):
-                    setting.text = str(value)
+        edit_xml(root, self.options)
 
         # write out xml
         options.write('dftgwbse.xml')
 
-    # just runs xtp_tools with CMDline call
-
     def run(self):
+        """Just runs xtp_tools with command line call."""
         # update and write the options
         self.updateOptions()
 

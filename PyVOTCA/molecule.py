@@ -143,8 +143,8 @@ class Molecule:
 
     # Parse energies/info from HDF5
 
-    def readORB(self, orbfile):
-
+    def readORB(self, orbfile: Pathlike):
+        """read data from the orb (HDF5) file."""
         with h5py.File(orbfile, 'r') as handler:
             orb = handler['QMdata']
             # get coordinates
