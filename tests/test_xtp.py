@@ -4,6 +4,8 @@ import os
 from .utils import PATH_TEST
 from PyVOTCA import Molecule, XTP
 
+from pathlib import Path
+
 
 def test_upgrade():
     """Check the mergin between the defauls and the user input."""
@@ -16,8 +18,11 @@ def test_upgrade():
         'functional': 'PBE', 'basisset': 'cc-pvtz',
         "dftpackage": {"package": {"name": "orca", "executable": "Path/to/Orca"}},
     }
-    votca = XTP(mol, options=user_options)
-
-    votca.updateOptions()
-
-    assert False
+    file = Path("dftgwbse.xml")
+    try:
+        votca = XTP(mol, options=user_options)
+        votca.updateOptions()
+        assert file.exists()
+    finally:
+        if file.exists():
+            os.remove(file)

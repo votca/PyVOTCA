@@ -6,18 +6,16 @@ from typing import Any, Dict
 
 def edit_xml(root: ET.Element, sections: Dict[str, Any], path: str = ".dftgwbse"):
     """Edit a XML object using sections."""
-    print("sections: ", sections)
     sec = root.find(path)
     if sec is None:
         raise RuntimeError(f"Unkown Section: {path}")
     else:
         for key, val in sections.items():
-            print("key, val: ", key, val)
             update_node(sec, key, val)
 
 
 def update_node(root: ET.Element, key: str, value: Any):
-    """Update node recursively."""
+    """Update nodes recursively."""
     sec = root.find(key)
 
     if sec is None:

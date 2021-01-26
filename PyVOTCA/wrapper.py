@@ -12,8 +12,8 @@ __all__ = ["XTP"]
 
 class XTP:
 
-    def __init__(self, mol: Molecule, threads=1, jobname='dftgwbse',
-                 options: Optional[Dict[str, Any]] = {}, jobdir='./'):
+    def __init__(self, mol: Molecule, threads: int = 1, jobname: str = 'dftgwbse',
+                 options: Optional[Dict[str, Any]] = {}, jobdir: str = './'):
         self.mol = mol
         self.threads = threads
         self.jobname = jobname
@@ -22,7 +22,7 @@ class XTP:
         self.options = options
 
     def updateOptions(self):
-
+        """Merge user options with the defaults."""
         # parsing defaults
         votcashare = os.environ.get('VOTCASHARE')
         default_options = f'{votcashare}/xtp/xml/dftgwbse.xml'
