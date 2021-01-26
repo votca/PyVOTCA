@@ -3,9 +3,6 @@ import os
 import subprocess
 import xml.etree.ElementTree as ET
 
-
-import numpy as np
-
 from .molecule import Molecule
 
 __all__ = ["XTP"]

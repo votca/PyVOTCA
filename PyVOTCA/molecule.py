@@ -1,8 +1,10 @@
 """Molecule representation."""
-import numpy as np
-from typing import Union
 from pathlib import Path
+from typing import Optional, Union
+
 import h5py
+import numpy as np
+
 from .utils import BOHR2ANG
 
 Pathlike = Union[Path, str]
@@ -55,7 +57,7 @@ class Molecule:
         return self.DFTenergy
 
     def getKSTotalEnergy(self, level=''):
-        """ Returns the excited state KS total energy."""
+        """Returns the excited state KS total energy."""
         self.checkData()
 
         lumo = self.homo + 1
@@ -70,31 +72,31 @@ class Molecule:
             return 0.0
 
     def getQPTotalEnergy(self, level=''):
-        """ Returns the excited state QP total energy."""
+        """Returns the excited state QP total energy."""
         self.checkData()
 
         lumo = self.homo + 1
 
         total_energy = self.DFTenergy
         if (level < lumo):
-            return(total_energy - self.QPenergies[level-self.qpmin])
+            return(total_energy - self.QPenergies[level - self.qpmin])
         elif level < len(self.KSenergies):
-            return(total_energy + self.QPenergies[level-self.qpmin])
+            return(total_energy + self.QPenergies[level - self.qpmin])
         else:
             print("Requested QP level {} does not exist.")
             return 0.0
 
     def getQPdiagTotalEnergy(self, level=''):
-        """ Returns the excited state diag QP total energy."""
+        """Returns the excited state diag QP total energy."""
         self.checkData()
 
         lumo = self.homo + 1
 
         total_energy = self.DFTenergy
         if (level < lumo):
-            return(total_energy - self.QPenergies_diag[level-self.qpmin])
+            return(total_energy - self.QPenergies_diag[level - self.qpmin])
         elif level < len(self.KSenergies):
-            return(total_energy + self.QPenergies_diag[level-self.qpmin])
+            return(total_energy + self.QPenergies_diag[level - self.qpmin])
         else:
             print("Requested diag QP level {} does not exist.")
             return 0.0
@@ -148,7 +150,7 @@ class Molecule:
             # get coordinates
             atoms = orb['qmmolecule']['qmatoms']
             # coordinates are stored in Bohr!
-            arr = [(atom['element'][0].decode(), BOHR2ANG*np.array(
+            arr = [(atom['element'][0].decode(), BOHR2ANG * np.array(
                 [atom['posX'][0], atom['posY'][0], atom['posZ'][0]], dtype=float)) for atom in atoms]
             elements_in, coordinates_in = tuple(zip(*arr))
 
@@ -167,27 +169,25 @@ class Molecule:
 
             self.hasXYZ = True
 
-            self.homo = int(orb.attrs['occupied_levels'])-1
+            self.homo = int(orb.attrs['occupied_levels']) - 1
             self.DFTenergy = float(orb.attrs['qm_energy'])
-            self.KSenergies = np.array(orb['mos']['eigenvalues'][:]).flatten()
-            self.QPenergies = np.array(orb['QPpert_energies'][:]).flatten()
-            self.QPenergies_diag = np.array(
-                orb['QPdiag']['eigenvalues'][:]).flatten()
-            self.BSE_singlet_energies = np.array(
-                orb['BSE_singlet']['eigenvalues'][:]).flatten()
-            self.BSE_triplet_energies = np.array(
-                orb['BSE_triplet']['eigenvalues'][:]).flatten()
-            self.BSE_singlet_energies_dynamic = np.array(
-                orb['BSE_singlet_dynamic'][:]).flatten()
-            self.BSE_triplet_energies_dynamic = np.array(
-                orb['BSE_triplet_dynamic'][:]).flatten()
+            self.KSenergies = read_flatten_array(orb, 'mos', 'eigenvalues')
+            self.QPenergies = read_flatten_array(orb, 'QPpert_energies')
+            self.QPenergies_diag = read_flatten_array(
+                orb, 'QPdiag', 'eigenvalues')
+            self.BSE_singlet_energies = read_flatten_array(
+                orb, 'BSE_singlet', 'eigenvalues')
+            self.BSE_triplet_energies = read_flatten_array(
+                orb, 'BSE_triplet', 'eigenvalues')
+            self.BSE_singlet_energies_dynamic = read_flatten_array(
+                orb, 'BSE_singlet_dynamic')
+            self.BSE_triplet_energies_dynamic = read_flatten_array(
+                orb, 'BSE_triplet_dynamic')
             self.qpmin = int(orb.attrs['qpmin'])
             self.qpmax = int(orb.attrs['qpmax'])
-            self.transition_dipoles = []
             td = orb['transition_dipoles']
-            for dset in td.keys():
-                self.transition_dipoles.append(td[dset][:])
-            self.transition_dipoles = np.array(self.transition_dipoles)
+            self.transition_dipoles = np.array(
+                [td[dset][()] for dset in td.keys()])
             self.hasData = True
 
     def getQPcorrections(self):
@@ -206,13 +206,21 @@ class Molecule:
             energy = self.BSE_singlet_energies_dynamic
         else:
             energy = self.BSE_singlet_energies
-        td = self.transition_dipoles
-        osc = []
-        for i in range(len(energy)):
-            osc.append(2./3. * energy[i] * np.sum(np.power(td[i], 2)))
+        osc = [(2. / 3.) * e * (t ** 2).sum()
+               for e, t in zip(energy, self.transition_dipoles)]
 
-        return (energy, np.array(osc))
+        return energy, np.array(osc)
 
     def checkData(self):
         if not self.hasData:
             raise Exception("No energy has been stored!")
+
+
+def read_flatten_array(group: h5py.Group, key1: str, key2: Optional[str] = None):
+    """Read an array from h5py handler and flatten it."""
+    if key2 is None:
+        arr = group[key1][()]
+    else:
+        arr = group[key1][key2][()]
+
+    return arr.flatten()
