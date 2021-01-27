@@ -26,5 +26,4 @@ def test_upgrade():
         assert file.exists()
     finally:
         if file.exists():
-            pass
-            # os.remove(file)
+            os.remove(file)
