@@ -29,6 +29,10 @@ class Options(dict):
         """ Allow `obj.key = new_value` notation"""
         self.__setitem__(key, value)
 
+    def __deepcopy__(self, _):
+        """Deepcopy of the Settings object."""
+        return Options(self.copy())
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to a normal dictionary."""
         def converter(var):
