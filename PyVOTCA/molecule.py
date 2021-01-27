@@ -4,6 +4,7 @@ from typing import List, Optional, Union
 
 import h5py
 import numpy as np
+import copy as cp
 
 from .utils import BOHR2ANG
 
@@ -22,8 +23,23 @@ class Molecule:
 
     def add_atom(self, element: str, x: float, y: float, z: float):
         self.elements.append(element)
-        self.coordinates.append(np.array([x, y, z]))
+        self.coordinates.append(np.array([float(x), float(y), float(z)]))
         self.hasXYZ = True
+
+    def copy_and_displace(self, mol2, atomidx: int, coordidx: int, dr: float):
+        if self.hasXYZ:
+            raise Exception("Molecule coordinates already defined!")
+
+        # deep-copying elements and coordinates
+        self.elements = cp.deepcopy(mol2.elements)
+        self.coordinates = cp.deepcopy(mol2.coordinates)
+
+        # displacing one atom in one direction
+        print(self.coordinates[0], self.coordinates[0][0],dr)
+        self.coordinates[atomidx][coordidx] +=dr
+        print(self.coordinates[0], self.coordinates[0][0],dr)
+        self.printXYZ()
+
 
     def printXYZ(self):
         for (element, coordinates) in zip(self.elements, self.coordinates):
