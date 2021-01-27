@@ -1,10 +1,11 @@
 """Test the XTP class."""
 
 import os
-from .utils import PATH_TEST
-from PyVOTCA import Molecule, XTP
-
 from pathlib import Path
+
+from PyVOTCA import XTP, Molecule
+
+from .utils import PATH_TEST
 
 
 def test_upgrade():

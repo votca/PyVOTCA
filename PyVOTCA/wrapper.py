@@ -2,11 +2,12 @@
 import os
 import subprocess
 import xml.etree.ElementTree as ET
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from .molecule import Molecule
-from .xml_editor import edit_xml
 from .options import Options
+from .xml_editor import edit_xml
 
 __all__ = ["XTP"]
 
@@ -45,7 +46,7 @@ class XTP:
         self.mol.writeXYZfile(xyzfile)
 
         """ Runs VOTCA and moves results a job folder, if requested """
-        if not os.path.exists(self.jobdir):
+        if not Path(self.jobdir).exists():
             os.makedirs(self.jobdir)
 
         votcacmd = f"xtp_tools -e dftgwbse -o dftgwbse.xml -n {xyzname} -t {self.threads} > {self.jobdir}{self.jobname}.log"
