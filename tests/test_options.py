@@ -1,3 +1,4 @@
+import copy
 from PyVOTCA.options import Options
 
 data = {'a': 3, 'c': {'d': 42}}
@@ -13,3 +14,8 @@ def test_opts():
     opts.elem = 42
 
     assert opts['elem'] == 42
+
+    # Check copy
+    other = copy.deepcopy(opts)
+    other.c.d = 23
+    assert other.c.d != opts.c.d
