@@ -14,10 +14,14 @@ mol.add_atom("O", 1.2, 0, 0)
 # mol.readXYZfile('CO.xyz')
 
 # get a XTP object
-votca = XTP()
+votca = XTP(mol)
 # this allows to change all options
 #votca.options['functional'] = 'PBE'
 # votca.options['basisset']='cc-pvtz'
+votca.options.dftpackage.package.name = "orca"
+votca.options.dftpackage.package.executable = "Path/to/Orca"
+votca.options.gwbse_engine.gwbse_options.gwbse.mode = 'G0W0'
+
 
 # run for the molecule
 # votca.run(mol)

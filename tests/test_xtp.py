@@ -17,6 +17,7 @@ def test_upgrade():
     user_options = {
         'functional': 'PBE', 'basisset': 'cc-pvtz',
         "dftpackage": {"package": {"name": "orca", "executable": "Path/to/Orca"}},
+        "gwbse_engine": {"gwbse_options": {"gwbse": {"mode": 'G0W0'}}}
     }
     file = Path("dftgwbse.xml")
     try:
@@ -25,4 +26,5 @@ def test_upgrade():
         assert file.exists()
     finally:
         if file.exists():
-            os.remove(file)
+            pass
+            # os.remove(file)

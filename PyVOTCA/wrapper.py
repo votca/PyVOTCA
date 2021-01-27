@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional
 
 from .molecule import Molecule
 from .xml_editor import edit_xml
+from .options import Options
 
 __all__ = ["XTP"]
 
@@ -19,7 +20,7 @@ class XTP:
         self.jobname = jobname
         self.jobdir = jobdir
         self.orbfile = ''
-        self.options = options
+        self.options = Options(options)
 
     def updateOptions(self):
         """Merge user options with the defaults."""
