@@ -2,44 +2,41 @@
 import os
 import subprocess
 import xml.etree.ElementTree as ET
-
-
-import numpy as np
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 from .molecule import Molecule
+from .options import Options
+from .xml_editor import edit_xml
 
 __all__ = ["XTP"]
 
 
 class XTP:
 
-    def __init__(self, mol: Molecule, threads=1, jobname='dftgwbse', jobdir='./'):
+    def __init__(self, mol: Molecule, threads: int = 1, jobname: str = 'dftgwbse',
+                 options: Optional[Dict[str, Any]] = {}, jobdir: str = './'):
         self.mol = mol
         self.threads = threads
         self.jobname = jobname
         self.jobdir = jobdir
         self.orbfile = ''
-        self.options = {}
+        self.options = Options(options)
 
     def updateOptions(self):
-
+        """Merge user options with the defaults."""
         # parsing defaults
         votcashare = os.environ.get('VOTCASHARE')
         default_options = f'{votcashare}/xtp/xml/dftgwbse.xml'
         options = ET.parse(default_options)
         root = options.getroot()
-
-        for option, value in self.options.items():
-            if value != '':
-                for setting in root.iter(option):
-                    setting.text = str(value)
+        edit_xml(root, self.options)
 
         # write out xml
         options.write('dftgwbse.xml')
 
-    # just runs xtp_tools with CMDline call
-
     def run(self):
+        """Just runs xtp_tools with command line call."""
         # update and write the options
         self.updateOptions()
 
@@ -49,7 +46,7 @@ class XTP:
         self.mol.writeXYZfile(xyzfile)
 
         """ Runs VOTCA and moves results a job folder, if requested """
-        if not os.path.exists(self.jobdir):
+        if not Path(self.jobdir).exists():
             os.makedirs(self.jobdir)
 
         votcacmd = f"xtp_tools -e dftgwbse -o dftgwbse.xml -n {xyzname} -t {self.threads} > {self.jobdir}{self.jobname}.log"
