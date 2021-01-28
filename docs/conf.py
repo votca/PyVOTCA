@@ -19,7 +19,7 @@
 import os
 import sys
 
-import votcapytools
+import pyvotca
 
 here = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(here, '..')))

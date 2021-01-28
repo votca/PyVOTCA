@@ -1,10 +1,16 @@
-"""Molecule representation."""
+"""Molecule representation.
+
+API
+---
+.. autoclass:: Molecule
+
+"""
+import copy as cp
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import h5py
 import numpy as np
-import copy as cp
 
 from .utils import BOHR2ANG
 
@@ -19,17 +25,19 @@ class Molecule:
         self.elements = []
         self.coordinates = []
         self.gradient = None
-        self.hasData = False
-        self.hasXYZ = False
-        self.hasGradient = False
+        self.has_data = False
+        self.has_xyz = False
+        self.has_gradient = False
 
     def add_atom(self, element: str, x: float, y: float, z: float):
+        """Add a single atom to the molecule."""
         self.elements.append(element)
-        self.coordinates.append(np.array([float(x), float(y), float(z)]))
-        self.hasXYZ = True
+        self.coordinates.append(np.array([x, y, z]))
+        self.has_xyz = True
 
-    def copy_and_displace(self, mol2, atomidx: int, coordidx: int, dr: float):
-        if self.hasXYZ:
+    def copy_and_displace(self, mol2, atomidx: int, coordidx: int, dr: float) -> None:
+        """Create a new molecule displace by a dr factor."""
+        if self.has_xyz:
             raise Exception("Molecule coordinates already defined!")
 
         # deep-copying elements and coordinates
@@ -37,14 +45,15 @@ class Molecule:
         self.coordinates = cp.deepcopy(mol2.coordinates)
 
         # displacing one atom in one direction as requested
-        self.coordinates[atomidx][coordidx] +=dr
+        self.coordinates[atomidx][coordidx] += dr
 
-
-    def printXYZ(self):
+    def print_xyz(self) -> None:
+        """Print the molecule in xyz format."""
         for (element, coordinates) in zip(self.elements, self.coordinates):
             print(element, coordinates)
 
-    def readXYZfile(self, filename: Pathlike):
+    def read_xyz_file(self, filename: Pathlike) -> None:
+        """Read the molecular coordinates from a given file."""
         with open(filename, 'r') as handler:
             lines = handler.readlines()
 
@@ -52,9 +61,9 @@ class Molecule:
         arr = [(row[0], np.array(row[1:], dtype=float)) for row in [
             x.split() for x in lines[2:]]]
         self.elements, self.coordinates = tuple(zip(*arr))
-        self.hasXYZ = True
+        self.has_xyz = True
 
-    def writeXYZfile(self, filename: Pathlike):
+    def write_xyz_file(self, filename: Pathlike):
         """Write the molecule in XYZ format."""
         atoms = "\n".join(f"{elem} {xyz[0]:.4f} {xyz[1]:.4f} {xyz[2]:.4f}" for elem, xyz in zip(
             self.elements, self.coordinates))
@@ -65,131 +74,109 @@ class Molecule:
         with open(filename, "w") as xyzfile:
             xyzfile.write(mol)
 
-    def getTotalEnergy(self, kind, level='', dynamic = False):
-        """ Wraps call to individual total energy functions."""
+    def get_total_energy(self, kind: str, level: int, dynamic: bool = False) -> float:
+        """Wrap call to individual total energy functions."""
         if kind == 'dft_tot':
-            return self.getDFTEnergy()
+            return self.get_dft_energy()
         elif kind == 'ks':
-            return self.getKSTotalEnergy(level)
-        elif kind == 'QPpert':
-            return self.getQPTotalEnergy(level)
-        elif kind == 'QPdiag':
-            return self.getQPTotalEnergy(level)
-        elif kind == 'BSE_singlet' and not dynamic:
-            return self.getBSEsingletTotalEnergy(level)
-        elif kind == 'BSE_singlet' and  dynamic:
-            return self.getBSEsingletDynamicTotalEnergy(level)
-        elif kind == 'BSE_triplet' and not dynamic:
-            return self.getBSEtripletTotalEnergy(level)
-        elif kind == 'BSE_triplet' and  dynamic:
-            return self.getBSEtripletDynamicTotalEnergy(level)
+            return self.get_ks_total_energy(level)
+        elif kind == 'qp_pert':
+            return self.get_qp_total_energy(level)
+        elif kind == 'qp_diag':
+            return self.get_qp_total_energy(level)
+        elif kind == 'bse_singlet' and not dynamic:
+            return self.get_bse_singlet_total_energy(level)
+        elif kind == 'bse_singlet' and dynamic:
+            return self.get_bse_singlet_dynamic_total_energy(level)
+        elif kind == 'bse_triplet' and not dynamic:
+            return self.get_bse_triplet_total_energy(level)
+        elif kind == 'bse_triplet' and dynamic:
+            return self.get_bse_triplet_dynamic_total_energy(level)
         else:
             raise Exception(
-                    f'Energy of kind {kind} is not available!')
+                f'Energy of kind {kind} is not available!')
 
-    def getGradient(self):
-        """Returns the stored nuclear gradient in Hartree/Bohr"""
-        if self.hasGradient:
+    def get_gradient(self):
+        """Return the stored nuclear gradient in Hartree/Bohr."""
+        if self.has_gradient:
             return self.gradient
         else:
             raise Exception(
-                    'Nuclear gradient not available!')
+                'Nuclear gradient not available!')
 
-    def getDFTEnergy(self):
-        """ Returns the DFT total energy."""
-        self.checkData()
+    def get_dft_energy(self):
+        """Return the DFT total energy."""
+        self.check_data()
 
         return self.DFTenergy
 
-    def getKSTotalEnergy(self, level=''):
-        """Returns the excited state KS total energy."""
-        self.checkData()
+    def get_ks_total_energy(self, level=''):
+        """Return the excited state KS total energy."""
+        self.check_data()
 
         lumo = self.homo + 1
 
         total_energy = self.DFTenergy
         if (level < lumo):
-            return(total_energy - self.KSenergies[level])
-        elif level < len(self.KSenergies):
-            return(total_energy + self.KSenergies[level])
+            return(total_energy - self.ks_energies[level])
+        elif level < len(self.ks_energies):
+            return(total_energy + self.ks_energies[level])
         else:
             print("Requested KS level {} does not exist.")
             return 0.0
 
-    def getQPTotalEnergy(self, level=''):
-        """Returns the excited state QP total energy."""
-        self.checkData()
+    def get_qp_total_energy(self, level=''):
+        """Return the excited state QP total energy."""
+        self.check_data()
 
         lumo = self.homo + 1
 
         total_energy = self.DFTenergy
         if (level < lumo):
-            return(total_energy - self.QPenergies[level - self.qpmin])
-        elif level < len(self.KSenergies):
-            return(total_energy + self.QPenergies[level - self.qpmin])
+            return(total_energy - self.qp_energies[level - self.qpmin])
+        elif level < len(self.ks_energies):
+            return(total_energy + self.qp_energies[level - self.qpmin])
         else:
             print("Requested QP level {} does not exist.")
             return 0.0
 
-    def getQPdiagTotalEnergy(self, level=''):
-        """Returns the excited state diag QP total energy."""
-        self.checkData()
+    def get_qp_diag_total_energy(self, level=''):
+        """Return the excited state diag QP total energy."""
+        self.check_data()
 
         lumo = self.homo + 1
 
         total_energy = self.DFTenergy
         if (level < lumo):
-            return(total_energy - self.QPenergies_diag[level - self.qpmin])
-        elif level < len(self.KSenergies):
-            return(total_energy + self.QPenergies_diag[level - self.qpmin])
+            return(total_energy - self.qp_energies_diag[level - self.qpmin])
+        elif level < len(self.ks_energies):
+            return(total_energy + self.qp_energies_diag[level - self.qpmin])
         else:
-            print("Requested diag QP level {} does not exist.")
+            print(f"Requested diag QP {level} does not exist.")
             return 0.0
 
-    def getBSEsingletTotalEnergy(self, level=''):
-        """ Returns the excited state BSE Singlet total energy."""
-        self.checkData()
+    def get_bse_singlet_total_energy(self, level: int) -> float:
+        """Return the excited state BSE Singlet total energy."""
+        msg = f"Requested BSE singlet {level} does not exist."
+        return self.check_and_read(level, "bse_singlet_energies", msg)
 
-        if level < len(self.BSE_singlet_energies):
-            return(self.DFTenergy + self.BSE_singlet_energies[level])
-        else:
-            print("Requested BSE singlet level {} does not exist.")
-            return 0.0
+    def get_bse_triplet_total_energy(self, level: int) -> float:
+        """Return the excited state BSE Singlet total energy."""
+        msg = f"Requested BSE triplet {level} does not exist."
+        return self.check_and_read(level, "bse_triplet_energies", msg)
 
-    def getBSEtripletTotalEnergy(self, level=''):
-        """ Returns the excited state BSE Singlet total energy."""
-        self.checkData()
+    def get_bse_singlet_dynamic_total_energy(self, level: int) -> float:
+        """Return the excited state BSE Singlet total energy."""
+        msg = f"Requested dynamic BSE singlet {level} does not exist."
+        return self.check_and_read(level, "bse_singlet_energies_dynamic", msg)
 
-        if level < len(self.BSE_triplet_energies):
-            return(self.DFTenergy + self.BSE_triplet_energies[level])
-        else:
-            print("Requested BSE triplet level {} does not exist.")
-            return 0.0
+    def get_bse_triplet_dynamic_total_energy(self, level: int) -> float:
+        """Return the excited state BSE Singlet total energy."""
+        msg = f"Requested dynamic BSE triplet level {level} does not exist."
+        return self.check_and_read(level, "bse_triplet_energies_dynamic", msg)
 
-    def getBSEsingletDynamicTotalEnergy(self, level=''):
-        """ Returns the excited state BSE Singlet total energy."""
-        self.checkData()
-
-        if level < len(self.BSE_singlet_energies_dynamic):
-            return(self.DFTenergy + self.BSE_singlet_energies_dynamic[level])
-        else:
-            print("Requested dynamic BSE singlet level {} does not exist.")
-            return 0.0
-
-    def getBSEtripletDynamicTotalEnergy(self, level=''):
-        """ Returns the excited state BSE Singlet total energy."""
-        self.checkData()
-
-        if level < len(self.BSE_triplet_energies_dynamic):
-            return(self.DFTenergy + self.BSE_triplet_energies_dynamic[level])
-        else:
-            print("Requested dynamic BSE triplet level {} does not exist.")
-            return 0.0
-
-    # Parse energies/info from HDF5
-
-    def readORB(self, orbfile: Pathlike):
-        """read data from the orb (HDF5) file."""
+    def read_orb(self, orbfile: Pathlike) -> None:
+        """Read data from the orb (HDF5) file."""
         with h5py.File(orbfile, 'r') as handler:
             orb = handler['QMdata']
             # get coordinates
@@ -199,28 +186,28 @@ class Molecule:
                 [atom['posX'][0], atom['posY'][0], atom['posZ'][0]], dtype=float)) for atom in atoms]
             elements_in, coordinates_in = tuple(zip(*arr))
 
-            if not self.hasXYZ:
+            if not self.has_xyz:
                 self.elements = elements_in
                 self.coordinates = coordinates_in
             else:
                 self.check_molecule_integrity(elements_in, coordinates_in)
 
-            self.hasXYZ = True
+            self.has_xyz = True
 
             self.homo = int(orb.attrs['occupied_levels']) - 1
             self.DFTenergy = float(orb.attrs['qm_energy'])
-            self.QPenergies = read_flatten_array(orb, 'QPpert_energies')
-            self.QPenergies_diag, self.KSenergies, self.BSE_singlet_energies, self.BSE_triplet_energies = [
-                read_flatten_array(orb, x, 'eigenvalues') for x in ('QPdiag', 'mos', 'BSE_singlet', 'BSE_triplet')]
+            self.qp_energies = read_flatten_array(orb, 'qp_pert_energies')
+            self.qp_energies_diag, self.ks_energies, self.bse_singlet_energies, self.bse_triplet_energies = [
+                read_flatten_array(orb, x, 'eigenvalues') for x in ('qp_diag', 'mos', 'bse_singlet', 'bse_triplet')]
 
-            self.BSE_singlet_energies_dynamic, self.BSE_triplet_energies_dynamic = [
+            self.bse_singlet_energies_dynamic, self.bse_triplet_energies_dynamic = [
                 read_flatten_array(orb, f"BSE_{x}_dynamic") for x in ("singlet", "triplet")]
             self.qpmin = int(orb.attrs['qpmin'])
             self.qpmax = int(orb.attrs['qpmax'])
             td = orb['transition_dipoles']
             self.transition_dipoles = np.array(
                 [td[dset][()] for dset in td.keys()])
-            self.hasData = True
+            self.has_data = True
 
     def check_molecule_integrity(self, other_elements: List[str], other_coordinates: List[np.ndarray]):
         """Compare the atoms from self with the one stored in the HDF5."""
@@ -234,30 +221,42 @@ class Molecule:
                 raise Exception(
                     f'Molecular coordinates of element {k} {coord} differ from coordinates in orb file {other_coord}')
 
-    def getQPcorrections(self):
-        self.checkData()
+    def get_qp_corrections(self):
+        self.check_data()
 
-        QPcorrections = self.QPenergies -\
-            self.KSenergies[self.qpmin:self.qpmin + len(self.QPenergies)]
+        qp_corrections = self.qp_energies -\
+            self.ks_energies[self.qpmin:self.qpmin + len(self.qp_energies)]
 
-        return QPcorrections.flatten()
+        return qp_corrections.flatten()
 
-    def getOscillatorStrengths(self, dynamic=False):
-        self.checkData()
+    def get_oscillator_strengths(self, dynamic: bool = False) -> Tuple[float, np.ndarray]:
+        """Retrieve oscillator strenghts' values."""
+        self.check_data()
 
         # get energies/oscillator strengths
         if dynamic:
-            energy = self.BSE_singlet_energies_dynamic
+            energy = self.bse_singlet_energies_dynamic
         else:
-            energy = self.BSE_singlet_energies
+            energy = self.bse_singlet_energies
         osc = [(2. / 3.) * e * (t ** 2).sum()
                for e, t in zip(energy, self.transition_dipoles)]
 
         return energy, np.array(osc)
 
-    def checkData(self):
-        if not self.hasData:
+    def check_data(self):
+        """Check that there is data in the molecule."""
+        if not self.has_data:
             raise Exception("No energy has been stored!")
+
+    def check_and_read(self, level: int, prop: str, msg: str) -> float:
+        """Check that there is data available and retrieve it."""
+        self.check_data()
+
+        if level < len(getattr(self, prop)):
+            return(self.DFTenergy + getattr(self, prop)[level])
+        else:
+            print(msg)
+            return 0.0
 
 
 def read_flatten_array(group: h5py.Group, key1: str, key2: Optional[str] = None):
