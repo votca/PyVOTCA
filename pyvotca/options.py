@@ -15,18 +15,18 @@ class Options(dict):
     """
 
     def __init__(self, *args, **kwargs):
-        """ Create a recursive Options object"""
+        """Create a recursive Options object."""
         super().__init__(*args, **kwargs)
         for k, v in self.items():
             if isinstance(v, dict):
                 self[k] = Options(v)
 
     def __getattr__(self, attr: str):
-        """ Allow `obj.key` notation"""
+        """Allow `obj.key` notation."""
         return self.get(attr)
 
     def __setattr__(self, key: str, value: Any):
-        """ Allow `obj.key = new_value` notation"""
+        """Allow `obj.key = new_value` notation."""
         self.__setitem__(key, value)
 
     def __deepcopy__(self, _):
