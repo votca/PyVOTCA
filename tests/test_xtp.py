@@ -13,7 +13,7 @@ def test_upgrade():
     os.environ["VOTCASHARE"] = PATH_TEST.absolute().as_posix()
 
     # Molecule definition
-    mol = Molecule().readXYZfile(PATH_TEST / "ethylene.xyz")
+    mol = Molecule().read_xyz_file(PATH_TEST / "ethylene.xyz")
 
     user_options = {
         'functional': 'PBE', 'basisset': 'cc-pvtz',
@@ -23,7 +23,7 @@ def test_upgrade():
     file = Path("dftgwbse.xml")
     try:
         votca = XTP(mol, options=user_options)
-        votca.updateOptions()
+        votca.update_options()
         assert file.exists()
     finally:
         if file.exists():

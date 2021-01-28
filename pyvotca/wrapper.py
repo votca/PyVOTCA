@@ -23,7 +23,7 @@ class XTP:
         self.orbfile = ''
         self.options = Options(options)
 
-    def updateOptions(self):
+    def update_options(self):
         """Merge user options with the defaults."""
         # parsing defaults
         votcashare = os.environ.get('VOTCASHARE')
@@ -38,7 +38,7 @@ class XTP:
     def run(self):
         """Just runs xtp_tools with command line call."""
         # update and write the options
-        self.updateOptions()
+        self.update_options()
 
         # write the XYZfile
         xyzname = self.mol.name

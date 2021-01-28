@@ -196,9 +196,9 @@ class Molecule:
 
             self.homo = int(orb.attrs['occupied_levels']) - 1
             self.DFTenergy = float(orb.attrs['qm_energy'])
-            self.qp_energies = read_flatten_array(orb, 'qp_pert_energies')
+            self.qp_energies = read_flatten_array(orb, 'QPpert_energies')
             self.qp_energies_diag, self.ks_energies, self.bse_singlet_energies, self.bse_triplet_energies = [
-                read_flatten_array(orb, x, 'eigenvalues') for x in ('qp_diag', 'mos', 'bse_singlet', 'bse_triplet')]
+                read_flatten_array(orb, x, 'eigenvalues') for x in ('QPdiag', 'mos', 'BSE_singlet', 'BSE_triplet')]
 
             self.bse_singlet_energies_dynamic, self.bse_triplet_energies_dynamic = [
                 read_flatten_array(orb, f"BSE_{x}_dynamic") for x in ("singlet", "triplet")]
