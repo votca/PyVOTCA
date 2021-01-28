@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-from pyvotca import XTP, Molecule
+from pyvotca import DFTGWBSE, Molecule
 
 from .utils import PATH_TEST
 
@@ -22,7 +22,7 @@ def test_upgrade():
     }
     file = Path("dftgwbse.xml")
     try:
-        votca = XTP(mol, options=user_options)
+        votca = DFTGWBSE(mol, options=user_options)
         votca.update_options()
         assert file.exists()
     finally:

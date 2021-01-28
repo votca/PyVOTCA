@@ -10,13 +10,13 @@ import numpy as np
 
 from .molecule import Molecule
 from .utils import BOHR2ANG
-from .wrapper import XTP
+from .xtp import DFTGWBSE
 
 __all__ = ["NumericalGradient"]
 
 
 class NumericalGradient:
-    def __init__(self, xtp: XTP, dr: float = 0.001, path_to_simulations: str = './gradient/'):
+    def __init__(self, xtp: DFTGWBSE, dr: float = 0.001, path_to_simulations: str = './gradient/'):
         self.xtp = xtp
         self.dr = dr
         self.path = path_to_simulations
@@ -43,8 +43,8 @@ class NumericalGradient:
                     name = self.gen_name(
                         mol_displaced.name, atom, direction, coordinate)
                     # make a new xtp wrapper for this one
-                    xtp_displaced = XTP(mol_displaced, threads=self.xtp.threads,
-                                        options=self.xtp.options, jobname=name, jobdir=self.path)
+                    xtp_displaced = DFTGWBSE(mol_displaced, threads=self.xtp.threads,
+                                             options=self.xtp.options, jobname=name, jobdir=self.path)
                     # run this
                     xtp_displaced.run()
 
