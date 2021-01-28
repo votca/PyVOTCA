@@ -43,7 +43,7 @@ class DFTGWBSE:
         # write the XYZfile
         xyzname = self.mol.name
         xyzfile = xyzname + ".xyz"
-        self.mol.writeXYZfile(xyzfile)
+        self.mol.write_xyz_file(xyzfile)
 
         """ Runs VOTCA and moves results a job folder, if requested """
         if not Path(self.jobdir).exists():
@@ -60,6 +60,6 @@ class DFTGWBSE:
         else:
             self.orbfile = f'{xyzname}.orb'
 
-        self.mol.readORB(self.orbfile)
+        self.mol.read_orb(self.orbfile)
 
     # Reads energies from an existing HDF5 orb file
