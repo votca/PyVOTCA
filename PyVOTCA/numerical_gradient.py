@@ -6,30 +6,19 @@ from .wrapper import XTP
 from .molecule import Molecule
 import copy as cp
 
+from .utils import BOHR2ANG
+
 __all__ = ["NumericalGradient"]
-
-"""**************************************************************
-* PART I: Functions to run a simulation for all electric fields *
-**************************************************************"""
-
-
-def mkfldr(path):
-    try:
-        os.mkdir(path)
-    except OSError:
-        print("Creation of the directory %s failed" % path)
-
-
-"""**********************************************************
-* PART II: Gradient Calculator                              *
-**********************************************************"""
 
 
 class NumericalGradient:
-    def __init__(self, xtp: XTP, dr: float = 0.001, pathToSimulations='./experiments'):
+    def __init__(self, xtp: XTP, dr: float = 0.001, pathToSimulations='./gradient/'):
         self.xtp = xtp
         self.dr = dr
         self.path = pathToSimulations
+
+    def gen_name(self, name, atom, dir, coord):
+        return str(name + '_' + str(atom) + '_' + str(dir) + '_' + str(coord))
 
     def run_permut(self):
         """ Run's a VOTCA simulation for every displacement of the electric field with strength dE. """
@@ -38,75 +27,54 @@ class NumericalGradient:
         # how many atoms
         natoms = len(self.xtp.mol.elements)
 
+        directions = [-1.0, 1.0]
         for atom in range(natoms):
             for coordinate in range(3):
-                # get displaced molecule
-                mol_displaced=Molecule()
-                mol_displaced.copy_and_displace(self.xtp.mol, atom, coordinate, self.dr)
-                # make a new xtp wrapper for this one
-                xtp_displaced = XTP(mol_displaced)
-                # copy threads 
-                xtp_displaced.threads = cp.deepcopy(self.xtp.threads)
-                # copy custom option thread TODO
-                
+                for direction in directions:
+                    # get displaced molecule
+                    mol_displaced=Molecule()
+                    mol_displaced.copy_and_displace(self.xtp.mol, atom, coordinate, float(direction)*self.dr*BOHR2ANG)
+                    name = self.gen_name(mol_displaced.name, atom, direction, coordinate)
+                    # make a new xtp wrapper for this one
+                    xtp_displaced = XTP(mol_displaced, threads=self.xtp.threads, options=self.xtp.options, jobname=name, jobdir=self.path)
+                    # run this
+                    xtp_displaced.run()
 
-        # create a folder to contain all the results from the different experiments
-        # if(not os.path.exists('./experiments')):
-        #     mkfldr('./experiments')
-        # # run VOTCA for every displacement
-        # counter = 1
-        # for atom in range(int(xyz.coords.size / 3)):
-        #     for coordinate in range(3):
-        #         # displacement plus
-        #         xyz_plus = copy.deepcopy(xyz)
-        #         xyz_plus.coords[atom, coordinate] += dr
-        #         xyzfilename_plus = "{}_at{}_dir{}_plus.xyz".format(
-        #             str(name), str(atom), str(coordinate))
-        #         xyzfile_plus = open(xyzfilename_plus, "w")
-        #         cio.write_xyz(xyzfile_plus, *xyz_plus)
-        #         xyzfile_plus.close()
-        #         print("Running XTP for displacement +{} for atom {} in direction {}".format(
-        #             str(dr), str(atom), str(coordinate)))
-        #         votca.run(atom, coordinate, name, "plus", threads)
-
-        #         # displacement minus
-        #         xyz_minus = copy.deepcopy(xyz)
-        #         xyz_minus.coords[atom, coordinate] -= dr
-        #         xyzfilename_minus = "{}_at{}_dir{}_minus.xyz".format(
-        #             str(name), str(atom), str(coordinate))
-        #         xyzfile_minus = open(xyzfilename_minus, "w")
-        #         cio.write_xyz(xyzfile_minus, *xyz_minus)
-        #         xyzfile_minus.close()
-        #         print("Running XTP for displacement -{} for atom {} in direction {}".format(
-        #             str(dr), str(atom), str(coordinate)))
-        #         votca.run(atom, coordinate, name, "minus", threads)
-
-    def getGradient(self, kind, energyLevel=None):
-        """ Computes the gradient for a particle/excitation kind.
+    def calcGradient(self, kind, energyLevel=None):
+        """ Computes the gradient for a particle/excitation kind expecting all displaced calculation to be available.
 
         INPUT:  kind of particle/excitation (choices: BSE_singlet, BSE_triplet, QPdiag, QPpert and dft_tot)
                 and optionally the energy level if not provided all energy levels will be returned
-        OUTPUT: numpy array of polarizability tensors.     
+        OUTPUT: numpy array of nuclear gradient stored in molecule object.     
         """
 
-        print(self.n_atoms)
+        # how many atoms
+        natoms = len(self.xtp.mol.elements)
+        # store gradient in xtp.mol object
+        self.xtp.mol.gradient = np.zeros((natoms, 3))
 
-        gradient = np.zeros((self.n_atoms, 3))
-
-        for atom in range(self.n_atoms):
+        directions = [-1.0, 1.0]
+        for atom in range(natoms):
             for coordinate in range(3):
-                # get energies from files
-                filename = "./experiments/{}_at{}_dir{}_{}.orb".format(
-                    str(self.name), str(atom), str(coordinate), "plus")
-                Eplus = votca.getEnergies(
-                    kind, filename, energyLevel)
-                filename = "./experiments/{}_at{}_dir{}_{}.orb".format(
-                    str(self.name), str(atom), str(coordinate), "minus")
-                Eminus = votca.getEnergies(
-                    kind, filename, energyLevel)
+                E_plus = 0.0
+                E_minus = 0.0
+                for direction in directions:
+                    # get energy for displaced molecules
+                    mol_displaced=Molecule()
+                    name = self.gen_name(mol_displaced.name, atom, direction, coordinate)
+                    orbname = self.path + name + '.orb'
+                    mol_displaced.readORB(orbname)
+                    if direction > 0:
+                        E_plus = mol_displaced.getTotalEnergy(kind,energyLevel)
+                    else:
+                        E_minus = mol_displaced.getTotalEnergy(kind,energyLevel)
+                
+                self.xtp.mol.gradient[atom, coordinate] = (E_plus - E_minus)/(2.0 * self.dr)
+        
+        self.xtp.mol.hasGradient = True
+        return self.xtp.mol.gradient
 
-                # Compute derivative
-                gradient[atom, coordinate] = (
-                    Eplus - Eminus)/(2.0 * self.dr * 1.8897259886)
 
-        return gradient
+    def getGradient(self,kind, energyLevel=None):
+        self.run_permut()
+        self.calcGradient(kind,energyLevel) 
