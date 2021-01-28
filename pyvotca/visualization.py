@@ -9,19 +9,21 @@ class Visualization:
     def __init__(self, mol: Molecule):
         self.mol = mol
 
-    def plotQPcorrections(self):
-        QPcorrections = self.mol.getQPcorrections()
+    def plot_qp_corrections(self):
+        qp_corrections = self.mol.get_qp_corrections()
         qpmin = self.mol.qpmin
         qpmax = self.mol.qpmax + 1
-        correctedKS = self.mol.KSenergies[qpmin:qpmax]
-        plt.plot(correctedKS, QPcorrections, 'ro')
+        corrected_ks = self.mol.ks_energies[qpmin:qpmax]
+        plt.plot(corrected_ks, qp_corrections, 'ro')
         plt.xlabel('KS Energy (eV)')
         plt.ylabel('QP correction (eV)')
         plt.show()
 
-    def plotAbsorptionGaussian(self, dynamic=False, min=0.0, max=10.0, points=1000, sigma=0.2):
+    def plot_absorption_gaussian(
+            self, dynamic: bool = False, min: float = 0.0, max: float = 10.0, points: int = 1000,
+            sigma: float = 0.2):
 
-        energy, osc = self.mol.getOscillatorStrengths(dynamic)
+        energy, osc = self.mol.get_oscillator_strengths(dynamic)
 
         # convert energies from Hartree to eV
         energy *= H2EV  # to eV
@@ -41,5 +43,5 @@ class Visualization:
         plt.show()
 
     def gaussian(self, x, mu, sig):
-        #ATTN: not normalized
+        """Non-normalized Gaussian distribution."""
         return np.exp(-0.5 * ((x - mu) / sig) ** 2)
