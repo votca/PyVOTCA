@@ -93,7 +93,7 @@ class Molecule:
             return self.gradient
         else:
             raise Exception(
-                    f'Nuclear gradient not available!')
+                    'Nuclear gradient not available!')
 
     def getDFTEnergy(self):
         """ Returns the DFT total energy."""

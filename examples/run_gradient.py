@@ -23,6 +23,6 @@ votca.run()
 
 # calculate a DFT-GWBSE gradient at the geometry
 grad=NumericalGradient(votca,dr=0.001)
-grad.getGradient('BSE_singet',0)
+grad.getGradient('BSE_singlet',0)
 
 print(mol.getGradient())
