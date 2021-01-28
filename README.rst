@@ -6,8 +6,6 @@ votcapytools
 Generic tools to interact with Votca using Python
 
 
-The project setup is documented in `a separate document <project_setup.rst>`_. Feel free to remove this document (and/or the link to this document) if you don't need it.
-
 Installation
 ------------
 
@@ -16,7 +14,7 @@ To install votcapytools, do:
 .. code-block:: console
 
   git clone https://github.com/https://github.com/votca/votcapytools/votcapytools.git
-  cd votcapytools
+  cd pyvotca
   pip install .
 
 
@@ -26,13 +24,6 @@ Run tests (including coverage) with:
 
   python setup.py test
 
-
-Documentation
-*************
-
-.. _README:
-
-Include a link to your project's full documentation here.
 
 Contributing
 ************

@@ -1,18 +1,18 @@
-"""Votca Wrapper."""
+"""DFTGWSE wrapper."""
 import os
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from .molecule import Molecule
-from .options import Options
-from .xml_editor import edit_xml
+from ..molecule import Molecule
+from ..options import Options
+from ..xml_editor import edit_xml
 
-__all__ = ["XTP"]
+__all__ = ["DFTGWBSE"]
 
 
-class XTP:
+class DFTGWBSE:
 
     def __init__(self, mol: Molecule, threads: int = 1, jobname: str = 'dftgwbse',
                  options: Optional[Dict[str, Any]] = {}, jobdir: str = './'):
@@ -23,7 +23,7 @@ class XTP:
         self.orbfile = ''
         self.options = Options(options)
 
-    def updateOptions(self):
+    def update_options(self):
         """Merge user options with the defaults."""
         # parsing defaults
         votcashare = os.environ.get('VOTCASHARE')
@@ -38,7 +38,7 @@ class XTP:
     def run(self):
         """Just runs xtp_tools with command line call."""
         # update and write the options
-        self.updateOptions()
+        self.update_options()
 
         # write the XYZfile
         xyzname = self.mol.name

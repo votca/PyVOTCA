@@ -6,25 +6,25 @@ from setuptools import find_packages, setup
 HERE = os.path.abspath(os.path.dirname(__file__))
 
 version = {}
-with open(os.path.join(HERE, 'PyVOTCA', '__version__.py')) as f:
+with open(os.path.join(HERE, 'pyvotca', '__version__.py')) as f:
     exec(f.read(), version)
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
 setup(
-    name='PyVOTCA',
+    name='pyvotca',
     version=version,
     description="Generic tools to interact with Votca using Python",
     long_description=readme + '\n\n',
     author="Bjoern Baumeier",
     author_email='',
-    url='https://github.com/votca/PyVOTCA/PyVOTCA',
+    url='https://github.com/votca/pyvotca/pyvotca',
     packages=find_packages(),
     include_package_data=True,
     license="Apache Software License 2.0",
     zip_safe=False,
-    keywords='votcapytools',
+    keywords='pyvotca',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -35,7 +35,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'xtp_gradient=PyVOTCA.xtp_gradient:main',
+            'xtp_gradient=pyvotca.xtp_gradient:main',
         ]
     },
 

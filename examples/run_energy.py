@@ -1,6 +1,6 @@
-from PyVOTCA import XTP
-from PyVOTCA import Molecule
-from PyVOTCA import Visualization
+from pyvotca import XTP
+from pyvotca import Molecule
+from pyvotca import Visualization
 
 
 # define a molecule
