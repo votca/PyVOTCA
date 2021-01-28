@@ -4,6 +4,7 @@ from typing import List, Optional, Union
 
 import h5py
 import numpy as np
+import copy as cp
 
 from .utils import BOHR2ANG
 
@@ -14,16 +15,30 @@ class Molecule:
     """Molecule definition."""
 
     def __init__(self):
+        self.name = "molecule"
         self.elements = []
         self.coordinates = []
-        self.name = "molecule"
+        self.gradient = None
         self.hasData = False
         self.hasXYZ = False
+        self.hasGradient = False
 
     def add_atom(self, element: str, x: float, y: float, z: float):
         self.elements.append(element)
-        self.coordinates.append(np.array([x, y, z]))
+        self.coordinates.append(np.array([float(x), float(y), float(z)]))
         self.hasXYZ = True
+
+    def copy_and_displace(self, mol2, atomidx: int, coordidx: int, dr: float):
+        if self.hasXYZ:
+            raise Exception("Molecule coordinates already defined!")
+
+        # deep-copying elements and coordinates
+        self.elements = cp.deepcopy(mol2.elements)
+        self.coordinates = cp.deepcopy(mol2.coordinates)
+
+        # displacing one atom in one direction as requested
+        self.coordinates[atomidx][coordidx] +=dr
+
 
     def printXYZ(self):
         for (element, coordinates) in zip(self.elements, self.coordinates):
@@ -49,6 +64,36 @@ class Molecule:
 """
         with open(filename, "w") as xyzfile:
             xyzfile.write(mol)
+
+    def getTotalEnergy(self, kind, level='', dynamic = False):
+        """ Wraps call to individual total energy functions."""
+        if kind == 'dft_tot':
+            return self.getDFTEnergy()
+        elif kind == 'ks':
+            return self.getKSTotalEnergy(level)
+        elif kind == 'QPpert':
+            return self.getQPTotalEnergy(level)
+        elif kind == 'QPdiag':
+            return self.getQPTotalEnergy(level)
+        elif kind == 'BSE_singlet' and not dynamic:
+            return self.getBSEsingletTotalEnergy(level)
+        elif kind == 'BSE_singlet' and  dynamic:
+            return self.getBSEsingletDynamicTotalEnergy(level)
+        elif kind == 'BSE_triplet' and not dynamic:
+            return self.getBSEtripletTotalEnergy(level)
+        elif kind == 'BSE_triplet' and  dynamic:
+            return self.getBSEtripletDynamicTotalEnergy(level)
+        else:
+            raise Exception(
+                    f'Energy of kind {kind} is not available!')
+
+    def getGradient(self):
+        """Returns the stored nuclear gradient in Hartree/Bohr"""
+        if self.hasGradient:
+            return self.gradient
+        else:
+            raise Exception(
+                    'Nuclear gradient not available!')
 
     def getDFTEnergy(self):
         """ Returns the DFT total energy."""

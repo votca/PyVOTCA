@@ -55,7 +55,7 @@ class XTP:
 
         # copy orbfile, if jobdir is not default
         if (self.jobdir != "./"):
-            self.orbfile = f'{self.jobdir}{xyzname}.orb'
+            self.orbfile = f'{self.jobdir}{self.jobname}.orb'
             os.replace(f'{xyzname}.orb', self.orbfile)
         else:
             self.orbfile = f'{xyzname}.orb'
