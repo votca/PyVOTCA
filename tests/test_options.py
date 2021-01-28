@@ -1,5 +1,5 @@
 import copy
-from PyVOTCA.options import Options
+from pyvotca.options import Options
 
 data = {'a': 3, 'c': {'d': 42}}
 

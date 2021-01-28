@@ -1,4 +1,4 @@
-from PyVOTCA.molecule import Molecule
+from pyvotca.molecule import Molecule
 from .utils import PATH_TEST
 from pathlib import Path
 import numpy as np

@@ -59,7 +59,7 @@ class Molecule:
         atoms = "\n".join(f"{elem} {xyz[0]:.4f} {xyz[1]:.4f} {xyz[2]:.4f}" for elem, xyz in zip(
             self.elements, self.coordinates))
         mol = f"""{len(self.elements)}
-{self.name} created by PyVOTCA writer
+{self.name} created by pyvotca writer
 {atoms}
 """
         with open(filename, "w") as xyzfile:

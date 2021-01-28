@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-from PyVOTCA import XTP, Molecule
+from pyvotca import XTP, Molecule
 
 from .utils import PATH_TEST
 

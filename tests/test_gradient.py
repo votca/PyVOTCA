@@ -1,4 +1,4 @@
-from PyVOTCA.numerical_gradient import NumericalGradient
+from pyvotca.numerical_gradient import NumericalGradient
 
 
 def test_instantiation():
