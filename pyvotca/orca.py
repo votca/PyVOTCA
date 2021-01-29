@@ -2,7 +2,7 @@
 from .molecule import Molecule
 import numpy as np
 from .utils import H2EV
-
+from .utils import BOHR2ANG
 
 class Orca:
     def __init__(self, mol: Molecule):
@@ -33,5 +33,11 @@ class Orca:
         """Reads Hessian from the orca .hess file."""
 
 
-    def write_gradient(self, gradient_file: str):
-        
+    def write_gradient(self, energy: float):
+
+        orcaout=open("system.extcomp.out", "w")
+        orcaout.write("%.18g\n" % energy )
+
+        for gradient in self.mol.gradient:
+            orcaout.write(" %.18g %.18g %.18g\n" % (gradient[0]/BOHR2ANG, gradient[1]/BOHR2ANG, gradient[2]/BOHR2ANG))
+        orcaout.close()
