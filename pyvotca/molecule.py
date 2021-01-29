@@ -229,7 +229,7 @@ class Molecule:
 
         return qp_corrections.flatten()
 
-    def get_oscillator_strengths(self, dynamic: bool = False) -> Tuple[float, np.ndarray]:
+    def get_oscillator_strengths(self, dynamic: bool = False) -> Tuple[np.ndarray, np.ndarray]:
         """Retrieve oscillator strenghts' values."""
         self.check_data()
 
