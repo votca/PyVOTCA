@@ -1,6 +1,7 @@
 """Orca reader/writer module."""
 from .molecule import Molecule
 from .parsers.orca_parsers import parse_gradient, parse_hessian
+from ..utils import BOHR2ANG
 
 
 class Orca:
@@ -15,3 +16,13 @@ class Orca:
     def read_hessian(self, hessian_file: str):
         """Read Hessian from the orca .hess file."""
         self.mol.hessian = parse_hessian(hessian_file)
+
+    def write_gradient(self, energy: float):
+        """Write gradient in Orca format."""
+        s = f"{energy:.18g}\n"
+        for gradient in self.mol.gradient:
+            gs = [g / BOHR2ANG for g in gradient]
+            s += f" {gs[0]:.18g} {gs[1]:.18g} {gs[2]:.18g}\n"
+
+        with open("system.extcomp.out", "w") as orcaout:
+            orcaout.write(s)
