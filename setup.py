@@ -39,7 +39,7 @@ setup(
         ]
     },
 
-    install_requires=["h5py", "matplotlib", "numpy", "scipy"],
+    install_requires=["h5py", "matplotlib", "more_itertools", "numpy", "pyparsing", "scipy"],
     extras_require={
         'test': ['coverage', 'mypy', 'pycodestyle', 'pytest>=3.9',
                  'pytest-asyncio', 'pytest-cov', 'pytest-mock'],
