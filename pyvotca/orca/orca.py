@@ -1,8 +1,9 @@
 """Orca reader/writer module."""
-from .molecule import Molecule
-from .parsers.orca_parsers import parse_gradient, parse_hessian
+from ..molecule import Molecule
+from ..parsers.orca_parsers import parse_gradient, parse_hessian
 from ..utils import BOHR2ANG
 
+__all__ = ["Orca"]
 
 class Orca:
     def __init__(self, mol: Molecule):
@@ -12,10 +13,12 @@ class Orca:
         """Read the nuclear gradient from an orca engrad file."""
         # read the gradient from an ORCA engrad calculation
         self.mol.gradient = parse_gradient(gradient_file)
+        self.mol.has_gradient = True
 
     def read_hessian(self, hessian_file: str):
         """Read Hessian from the orca .hess file."""
         self.mol.hessian = parse_hessian(hessian_file)
+        self.mol.has_hessian = True
 
     def write_gradient(self, energy: float):
         """Write gradient in Orca format."""

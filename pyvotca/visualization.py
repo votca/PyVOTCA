@@ -32,6 +32,7 @@ class Visualization:
         # apply unormalized Gaussian lineshape
         e = np.linspace(min, max, points)
         spectrum = 0
+        print(len(energy))
         for i in range(len(energy)):
             spectrum += osc[i] * self.gaussian(e, energy[i], sigma)
 

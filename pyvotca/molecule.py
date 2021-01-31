@@ -28,6 +28,8 @@ class Molecule:
         self.has_data = False
         self.has_xyz = False
         self.has_gradient = False
+        self.hessian = None
+        self.has_hessian = False
 
     def add_atom(self, element: str, x: float, y: float, z: float):
         """Add a single atom to the molecule."""
