@@ -7,6 +7,8 @@ from .numerical_gradient import NumericalGradient
 from .xtp import DFTGWBSE
 from .molecule import Molecule
 from .visualization import Visualization
+from .electron_phonon import Electronphonon
+from .orca import Orca
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
