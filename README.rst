@@ -13,7 +13,7 @@ To install votcapytools, do:
 
 .. code-block:: console
 
-  git clone https://github.com/https://github.com/votca/votcapytools/votcapytools.git
+  git clone https://github.com/votca/PyVOTCA.git
   cd pyvotca
   pip install .
 
