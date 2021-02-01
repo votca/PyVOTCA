@@ -40,7 +40,7 @@ class Electronphonon:
         """
 
         # we don't want to change the input gradient
-        es_gradient = gradient[:]
+        es_gradient = np.copy(gradient)
 
         # get vector with masses of the atoms
         mass = np.repeat(self.get_mass(elements), 3)
@@ -74,7 +74,7 @@ class Electronphonon:
         """Calculates the vibrational frequencies and eigenmodes from a Hessian matrix and a list of elements"""
 
         # we don't want to change the input hessian
-        hessian = hessian_in[:]
+        hessian = np.copy(hessian_in)
 
         # get vector with masses of the atoms
         mass = np.repeat(self.get_mass(elements), 3)
@@ -90,14 +90,8 @@ class Electronphonon:
         cfreq = np.array(freq_sq, dtype=np.complex128)
         cfreq = np.sqrt(cfreq)
 
-        # check for imaginay frequencies and store them as negetive real ones
-        freq = []
-        for f in cfreq:
-            if np.imag(f) == 0:
-                freq.append(np.real(f))
-            else:
-                freq.append(-np.imag(f))
-        freq = np.array(freq, dtype=np.float64)
+        # check for imaginary frequencies and store them as negative real ones
+        freq = np.where(np.isreal, np.real(cfreq), -np.imag(cfreq))
 
         # sort frequencies and eigenvectors
         isort = freq.argsort()
