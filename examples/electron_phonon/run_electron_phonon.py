@@ -7,14 +7,14 @@ from pyvotca import Electronphonon
 mol=Molecule()
 
 # load xyz 
-mol.read_xyz_file('./el-ph/NPB.xyz')
+mol.read_xyz_file('./NPB.xyz')
 orca=Orca(mol)
 
 # read gradient from orca
-orca.read_gradient('./el-ph/NPB+.engrad')
+orca.read_gradient('./NPB+.engrad')
 
 # read Hessian from orca
-orca.read_hessian('./el-ph/NPB.hess')
+orca.read_hessian('./NPB.hess')
 
 # calculate el-ph couplings and plot
 ep = Electronphonon()
