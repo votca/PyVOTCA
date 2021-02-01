@@ -19,7 +19,7 @@ setup(
     long_description=readme + '\n\n',
     author="Bjoern Baumeier",
     author_email='',
-    url='https://github.com/votca/pyvotca/pyvotca',
+    url='https://github.com/votca/PyVOTCA',
     packages=find_packages(),
     include_package_data=True,
     license="Apache Software License 2.0",
