@@ -1,21 +1,27 @@
 """Orca reader/writer module."""
+from pathlib import Path
+from typing import Union
+
 from ..molecule import Molecule
 from ..parsers.orca_parsers import parse_gradient, parse_hessian
 from ..utils import BOHR2ANG
 
+PathLike = Union[str, Path]
+
 __all__ = ["Orca"]
+
 
 class Orca:
     def __init__(self, mol: Molecule):
         self.mol = mol
 
-    def read_gradient(self, gradient_file: str):
+    def read_gradient(self, gradient_file: PathLike):
         """Read the nuclear gradient from an orca engrad file."""
         # read the gradient from an ORCA engrad calculation
         self.mol.gradient = parse_gradient(gradient_file)
         self.mol.has_gradient = True
 
-    def read_hessian(self, hessian_file: str):
+    def read_hessian(self, hessian_file: PathLike):
         """Read Hessian from the orca .hess file."""
         self.mol.hessian = parse_hessian(hessian_file)
         self.mol.has_hessian = True

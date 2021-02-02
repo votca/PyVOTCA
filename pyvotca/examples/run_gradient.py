@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-from pyvotca import NumericalGradient
-from pyvotca import Molecule
-from pyvotca import XTP
+"""Example to perform a gradient calculation."""
+import numpy as np
+
+from pyvotca import DFTGWBSE, Molecule, NumericalGradient
 
 
-def run_gradient():
+def run_gradient() -> np.ndarray:
+    """Compute gradient."""
     # define a molecule
     mol = Molecule()
 
@@ -12,21 +14,23 @@ def run_gradient():
     mol.add_atom("C", 0, 0, 0)
     mol.add_atom("O", 1.3, 0.0, 0.0)
 
-    # get a XTP object
-    votca = XTP(mol)
+    # get a DFTGWBSE object
+    votca = DFTGWBSE(mol)
     # this allows to change all options
-    #votca.options['functional'] = 'PBE'
-    votca.options['basisset'] = 'def2-svp'
-    votca.options['auxbasisset'] = 'aux-def2-svp'
+    # votca.options['functional'] = 'PBE'
+    votca.options.basisset = 'def2-svp'
+    votca.options.auxbasisset = 'aux-def2-svp'
 
-    # run for the molecule it its geometry
+    # run for the molecule in its geometry
     votca.run()
 
     # calculate a DFT-GWBSE gradient at the geometry
     grad = NumericalGradient(votca, dr=0.001)
-    grad.getGradient('BSE_singlet', 0)
+    grad.get_gradient('BSE_singlet', 0)
 
-    print(mol.getGradient())
+    print(mol.get_gradient())
+    return mol.get_gradient
+
 
 if __name__ == "__main":
     run_gradient()

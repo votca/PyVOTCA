@@ -1,24 +1,34 @@
-from pyvotca import Molecule
-from pyvotca import Orca
-from pyvotca import Electronphonon
+#!/usr/bin/env python
+"""Phonon electron example."""
+from pathlib import Path
+from typing import Tuple
+
+import numpy as np
+
+from pyvotca import Electronphonon, Molecule, Orca
+
+PATH_EXAMPLES = Path("pyvotca/examples/electron_phonon")
 
 
-# define a molecule
-mol=Molecule()
+def run_electron_phonon(show: bool = True) -> Tuple[np.ndarray, np.ndarray]:
+    """Run an electron phonon simulation."""
+    # define a molecule
+    mol = Molecule()
 
-# load xyz 
-mol.read_xyz_file('./NPB.xyz')
-orca=Orca(mol)
+    # load xyz
+    mol.read_xyz_file(PATH_EXAMPLES / 'NPB.xyz')
+    orca = Orca(mol)
 
-# read gradient from orca
-orca.read_gradient('./NPB+.engrad')
+    # read gradient from orca
+    orca.read_gradient(PATH_EXAMPLES / 'NPB+.engrad')
 
-# read Hessian from orca
-orca.read_hessian('./NPB.hess')
+    # read Hessian from orca
+    orca.read_hessian(PATH_EXAMPLES / 'NPB.hess')
 
-# calculate el-ph couplings and plot
-ep = Electronphonon()
-ep.calculate_electron_phonon_couplings(mol.elements,mol.hessian,mol.gradient,plot=True)
+    # calculate el-ph couplings and plot
+    ep = Electronphonon()
+    return ep.calculate_electron_phonon_couplings(mol.elements, mol.hessian, mol.gradient, plot=show)
 
 
-
+if __name__ == "__main__":
+    run_electron_phonon()

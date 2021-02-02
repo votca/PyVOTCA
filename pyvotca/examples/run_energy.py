@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-from pyvotca import DFTGWBSE
-from pyvotca import Molecule
-from pyvotca import Visualization
+"""Example to compute energies using XTP."""
+from pyvotca import DFTGWBSE, Molecule, Visualization
 
 
 def run_energy(save_figure: bool = False):
@@ -19,8 +18,8 @@ def run_energy(save_figure: bool = False):
     # get a DFTGWBSE object
     dft = DFTGWBSE(mol)
     # change basis sets to a smaller one
-    dft.options['basisset'] = 'def2-svp'
-    dft.options['auxbasisset'] = 'aux-def2-svp'
+    dft.options.basisset = 'def2-svp'
+    dft.options.auxbasisset = 'aux-def2-svp'
 
     # run for the molecule
     # dft.run(mol)
