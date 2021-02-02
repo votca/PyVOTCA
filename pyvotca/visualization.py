@@ -6,8 +6,9 @@ from .utils import H2EV
 
 
 class Visualization:
-    def __init__(self, mol: Molecule):
+    def __init__(self, mol: Molecule, save_figure: bool = False):
         self.mol = mol
+        self.save_figure = save_figure
 
     def plot_qp_corrections(self):
         qp_corrections = self.mol.get_qp_corrections()
@@ -17,7 +18,10 @@ class Visualization:
         plt.plot(corrected_ks, qp_corrections, 'ro')
         plt.xlabel('KS Energy (eV)')
         plt.ylabel('QP correction (eV)')
-        plt.show()
+        if self.save_figure:
+            plt.savefig("qpcorrections.png")
+        else:
+            plt.show()
 
     def plot_absorption_gaussian(
             self, dynamic: bool = False, min: float = 0.0, max: float = 10.0, points: int = 1000,
@@ -41,7 +45,11 @@ class Visualization:
         plt.title(f'Gaussian lineshape with sigma = {sigma}eV')
         plt.xlabel('Energy (eV)')
         plt.ylabel('Absorption (arb. units)')
-        plt.show()
+        if self.save_figure:
+            plt.savefig("absorption_gaussian.png")
+        else:
+            plt.show()
+
 
     def gaussian(self, x, mu, sig):
         """Non-normalized Gaussian distribution."""

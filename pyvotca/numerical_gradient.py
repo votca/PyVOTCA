@@ -16,12 +16,14 @@ __all__ = ["NumericalGradient"]
 
 
 class NumericalGradient:
+    """Compue the gradient numerically using XTP."""
+
     def __init__(self, xtp: DFTGWBSE, dr: float = 0.001, path_to_simulations: str = './gradient/'):
         self.xtp = xtp
         self.dr = dr
         self.path = path_to_simulations
 
-    def gen_name(self, name, atom, dir, coord):
+    def gen_name(self, name: str, atom: int, dir: float, coord: int) -> str:
         """Generate a name for the gradient calculation."""
         return f"{name}_{atom}_{dir}_{coord}"
 
