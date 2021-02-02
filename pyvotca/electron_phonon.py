@@ -95,7 +95,7 @@ class Electronphonon:
         cfreq = np.sqrt(cfreq)
 
         # check for imaginary frequencies and store them as negative real ones
-        freq = np.where(np.isreal, np.real(cfreq), -np.imag(cfreq))
+        freq = np.where(np.isreal(cfreq), np.real(cfreq), -np.imag(cfreq))
 
         # sort frequencies and eigenvectors
         isort = freq.argsort()
