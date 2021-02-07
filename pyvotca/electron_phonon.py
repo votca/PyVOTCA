@@ -1,17 +1,16 @@
 """Electron-phonon-coupling module."""
-from .molecule import Molecule
+
+from typing import Tuple
+
+import matplotlib.pyplot as plt
 import numpy as np
 import periodictable
-import matplotlib.pyplot as plt
-from .utils import H2EV
-from .utils import AFU2EV
 import scipy.linalg as la
-from typing import List, Optional, Tuple, Union
+
+from .utils import AFU2EV, H2EV
 
 
 class Electronphonon:
-    def __init__(self): pass
-
     def get_mass(self, elements):
         mass = []
         for atom in elements:
@@ -19,7 +18,9 @@ class Electronphonon:
         mass = np.array(mass, dtype=float)
         return mass
 
-    def calculate_electron_phonon_couplings(self, elements, gs_hessian, gradient, plot=False) -> Tuple[np.ndarray, np.ndarray]:
+    def calculate_electron_phonon_couplings(
+            self, elements: np.ndarray, gs_hessian: np.ndarray, gradient: np.ndarray,
+            plot: bool = False) -> Tuple[np.ndarray, np.ndarray]:
         """Calculates the mode-resolved electron-phonon coupling from 
            the normal mode projected excited state gradient:
 
@@ -29,14 +30,17 @@ class Electronphonon:
                 - w_nu: frequency of the nu-th vibrational mode in GS
                 - e_nu: eigenvector of the nu-th vibrational mode in GS
 
-            INPUT: - elements:  np.array with N chemical elements 
-                   - hessian:   np.array of GS Hessian (3N,3N)
-                                in (a.f.u)^2 = Hartree/Bohr^2/amu
-                   - gradient:  flattened excited state gradient (3N)
-                                in Hartree/Bohr
+            Parameters
+            ----------
+            elements  np.array with N chemical elements 
+            gs_hessian  np.array of GS Hessian (3N,3N) in (a.f.u)^2 = Hartree/Bohr^2/amu
+            gradient  flattened excited state gradient (3N) in Hartree/Bohr
 
-            OUTPUT: - freq:         vibrational frequencies in a.f.u
-                    - ep_couplings: electron-phonon coupling per mode in Hartree
+            Returns
+            -------
+            freq vibrational frequencies in a.f.u
+            ep_couplings electron-phonon coupling per mode in Hartree
+
         """
 
         # we don't want to change the input gradient
@@ -59,18 +63,18 @@ class Electronphonon:
         nm_gradient[np.where(freq < 1e-5)] = 0.
 
         # electron-phonon couplings in Hartree
-        ep_couplings = (nm_gradient/freq)**2
+        ep_couplings = (nm_gradient / freq) ** 2
 
         if plot:
-            plt.bar(AFU2EV*freq, H2EV*ep_couplings, width=0.005, alpha=0.6)
-            plt.plot(AFU2EV*freq, H2EV*np.cumsum(ep_couplings), lw=2., alpha=0.8)
+            plt.bar(AFU2EV * freq, H2EV * ep_couplings, width=0.005, alpha=0.6)
+            plt.plot(AFU2EV * freq, H2EV * np.cumsum(ep_couplings), lw=2., alpha=0.8)
             plt.ylabel('cum. electron-phonon coupling (eV)')
             plt.xlabel('hw (eV)')
             plt.show()
 
         return (freq, ep_couplings)
 
-    def calculate_vibrational_modes(self, elements, hessian_in):
+    def calculate_vibrational_modes(self, elements, hessian_in) -> Tuple[np.ndarray, np.ndarray]:
         """Calculates the vibrational frequencies and eigenmodes from a Hessian matrix and a list of elements"""
 
         # we don't want to change the input hessian
@@ -91,7 +95,7 @@ class Electronphonon:
         cfreq = np.sqrt(cfreq)
 
         # check for imaginary frequencies and store them as negative real ones
-        freq = np.where(np.isreal, np.real(cfreq), -np.imag(cfreq))
+        freq = np.where(np.isreal(cfreq), np.real(cfreq), -np.imag(cfreq))
 
         # sort frequencies and eigenvectors
         isort = freq.argsort()
