@@ -32,7 +32,7 @@ class Visualization:
         # apply unormalized Gaussian lineshape
         e = np.linspace(min, max, points)
         spectrum = 0
-        print(len(energy))
+
         for i in range(len(energy)):
             spectrum += osc[i] * self.gaussian(e, energy[i], sigma)
 
@@ -46,3 +46,24 @@ class Visualization:
     def gaussian(self, x, mu, sig):
         """Non-normalized Gaussian distribution."""
         return np.exp(-0.5 * ((x - mu) / sig) ** 2)
+
+    def plot_dos_gaussian(self, ks=True, qp=True, min: float = -10.0, max: float = 5.0, points: int = 1000,
+                          sigma: float = 0.2):
+
+        plt.xlabel('Energy (eV)')
+        e = np.linspace(min, max, points)
+        dos_ks = 0
+        if ks:
+            ks_energies = self.mol.ks_energies
+            qpmin = self.mol.qpmin
+            qpmax = self.mol.qpmax + 1
+            for ks_energy in ks_energies[qpmin:qpmax]:
+                dos_ks += self.gaussian(e, ks_energy, sigma)
+            plt.plot(e, dos_ks, 'k', linewidth=2)
+        dos_qp = 0
+        if qp:
+            qp_energies = self.mol.qp_energies
+            for qp_energy in qp_energies:
+                dos_qp += self.gaussian(e, qp_energy, sigma)
+            plt.plot(e, dos_qp, 'k', linewidth=2)
+        plt.show()
