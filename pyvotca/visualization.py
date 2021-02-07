@@ -55,23 +55,28 @@ class Visualization:
         """Non-normalized Gaussian distribution."""
         return np.exp(-0.5 * ((x - mu) / sig) ** 2)
 
-    def plot_dos_gaussian(self, ks=True, qp=True, min: float = -10.0, max: float = 5.0, points: int = 1000,
+    def plot_dos_gaussian(self, ks=True, qp=True, min: float = -25.0, max: float = 10.0, points: int = 1000,
                           sigma: float = 0.2):
 
         plt.xlabel('Energy (eV)')
+        plt.ylabel('DOS (arb. units)')
         e = np.linspace(min, max, points)
         dos_ks = 0
         if ks:
-            ks_energies = self.mol.ks_energies
+            ks_energies = self.mol.ks_energies * H2EV  # to eV
             qpmin = self.mol.qpmin
             qpmax = self.mol.qpmax + 1
             for ks_energy in ks_energies[qpmin:qpmax]:
                 dos_ks += self.gaussian(e, ks_energy, sigma)
-            plt.plot(e, dos_ks, 'k', linewidth=2)
+            plt.plot(e, dos_ks, 'k', linewidth=2, label='KS')
         dos_qp = 0
         if qp:
-            qp_energies = self.mol.qp_energies
+            qp_energies = self.mol.qp_energies * H2EV 
             for qp_energy in qp_energies:
                 dos_qp += self.gaussian(e, qp_energy, sigma)
-            plt.plot(e, dos_qp, 'k', linewidth=2)
-        plt.show()
+            plt.plot(e, dos_qp, 'r', linewidth=2, label='QP')
+        plt.legend()
+        if self.save_figure:
+            plt.savefig("dos_gaussian.png")
+        else:
+            plt.show()
