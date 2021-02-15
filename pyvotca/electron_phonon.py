@@ -60,7 +60,8 @@ class Electronphonon:
         nm_gradient = modes.T.dot(es_gradient)
 
         # ignore any contribution from translation/rotation and imaginary frequencies
-        nm_gradient[np.where(freq < 1e-5)] = 0.
+        # and frequencies lower than 0.002 a.f.u ~ 10cm^-1 
+        nm_gradient[np.where(freq < 2e-3)] = 0.
 
         # electron-phonon couplings in Hartree
         ep_couplings = (nm_gradient / freq) ** 2
@@ -88,14 +89,14 @@ class Electronphonon:
         hessian /= np.sqrt(mass.reshape((len(mass), 1)))
 
         # get eigenmodes (squared frequency in (a.f.u)^2 = Hartree/Bohr^2/amu)
-        freq_sq, modes = la.eigh(hessian)
+        freq_sq, modes = la.eig(hessian)
 
         # convert to frequencies in a.f.u
         cfreq = np.array(freq_sq, dtype=np.complex128)
         cfreq = np.sqrt(cfreq)
 
         # check for imaginary frequencies and store them as negative real ones
-        freq = np.where(np.isreal(cfreq), np.real(cfreq), -np.imag(cfreq))
+        freq = np.where(np.isreal(cfreq), np.real(cfreq), -np.abs(np.imag(cfreq)))
 
         # sort frequencies and eigenvectors
         isort = freq.argsort()
