@@ -26,10 +26,11 @@ def run_gradient() -> np.ndarray:
 
     # calculate a DFT-GWBSE gradient at the geometry
     grad = NumericalGradient(votca, dr=0.001)
+    grad.run_permut()
     grad.get_gradient('BSE_singlet', 0)
 
     print(mol.get_gradient())
-    return mol.get_gradient
+    return mol.get_gradient()
 
 
 if __name__ == "__main":

@@ -97,5 +97,4 @@ class NumericalGradient:
 
     def get_gradient(self, kind: str, energy_level: int) -> np.ndarray:
         """Retrieve the gradient."""
-        self.run_permut()
         return self.calc_gradient(kind, energy_level)
