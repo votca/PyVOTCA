@@ -21,9 +21,11 @@ class Options(dict):
             if isinstance(v, dict):
                 self[k] = Options(v)
 
-    def __getattr__(self, attr: str):
+    def __getattr__(self, key: str):
         """Allow `obj.key` notation."""
-        return self.get(attr)
+        if self.get(key, None) is None:
+            self[key] = Options()
+        return self.get(key)
 
     def __setattr__(self, key: str, value: Any):
         """Allow `obj.key = new_value` notation."""
