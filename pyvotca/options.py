@@ -38,6 +38,6 @@ class Options(dict):
     def to_dict(self) -> Dict[str, Any]:
         """Convert to a normal dictionary."""
         def converter(var):
-            return var.to_dict() if isinstance(var, Options) else var
+            return var.to_dict() if (isinstance(var, Options) and len(var) > 0) else var
 
         return {k: converter(v) for k, v in self.items()}
