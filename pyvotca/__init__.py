@@ -4,6 +4,7 @@ import logging
 
 from .__version__ import __version__
 from .numerical_gradient import NumericalGradient
+from .numerical_polarizability import NumericalPolarizability
 from .xtp import DFTGWBSE
 from .molecule import Molecule
 from .visualization import Visualization
