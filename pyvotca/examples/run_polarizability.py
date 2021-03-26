@@ -13,7 +13,7 @@ def run_polarizability():
   mol.add_atom("O", 1.3, 0.0, 0.0)
 
   # initialize a dftgwbse object
-  votca = DFTGWBSE(mol, threads=6)
+  votca = DFTGWBSE(mol)
 
   # setup the polarizability calculator
   pol = NumericalPolarizability(votca, dE=0.002)
