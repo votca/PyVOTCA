@@ -18,10 +18,11 @@ def update_node(root: ET.Element, key: str, value: Any):
     """Update nodes recursively."""
     sec = root.find(key)
 
+    # insert new empty node
     if sec is None:
         elem = ET.Element(key)
-        elem.text = str(value)
         root.insert(0, elem)
+        update_node(root, key, value)
 
     else:
         for node in root.findall(key):

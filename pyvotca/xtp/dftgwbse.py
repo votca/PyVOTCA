@@ -30,7 +30,7 @@ class DFTGWBSE:
         default_options = f'{votcashare}/xtp/xml/dftgwbse.xml'
         options = ET.parse(default_options)
         root = options.getroot()
-        edit_xml(root, self.options)
+        edit_xml(root, self.options.to_dict())
 
         # write out xml
         options.write('dftgwbse.xml')
