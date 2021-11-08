@@ -5,9 +5,7 @@ from setuptools import find_packages, setup
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-version = {}
-with open(os.path.join(HERE, 'pyvotca', '__version__.py')) as f:
-    exec(f.read(), version)
+version = "0.1.0"
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()

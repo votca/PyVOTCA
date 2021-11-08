@@ -1,5 +1,6 @@
 """DFTGWSE wrapper."""
 import os
+import platform
 import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -49,9 +50,14 @@ class DFTGWBSE:
         if not Path(self.jobdir).exists():
             os.makedirs(self.jobdir)
 
-        votcacmd = f"xtp_tools -e dftgwbse -o dftgwbse.xml -n {xyzname} -t {self.threads} > {self.jobdir}{self.jobname}.log"
+        votcacmd = f"xtp_tools -e dftgwbse -c job_name={xyzname} -t {self.threads} > {self.jobdir}{self.jobname}.log"
 
-        subprocess.check_output(votcacmd, shell=True, stderr=subprocess.STDOUT)
+        # DYLD_LIBRARY_PATH is removed from env under MacOS
+        if platform.system() == "Darwin":
+            DYLD=os.environ.get('DYLD_LIBRARY_PATH')
+            votcacmd = f"export DYLD_LIBRARY_PATH={DYLD};" + votcacmd
+        
+        subprocess.run(votcacmd, shell=True, stderr=subprocess.STDOUT)
 
         # copy orbfile, if jobdir is not default
         if (self.jobdir != "./"):
@@ -60,6 +66,6 @@ class DFTGWBSE:
         else:
             self.orbfile = f'{xyzname}.orb'
 
+        # Reads energies from an existing HDF5 orb file
         self.mol.read_orb(self.orbfile)
 
-    # Reads energies from an existing HDF5 orb file
