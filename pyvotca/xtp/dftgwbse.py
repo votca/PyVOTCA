@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 
 from ..molecule import Molecule
 from ..options import Options
-from ..xml_editor import check_xml, create_xml_tree
+from ..xml_editor import create_xml_tree
 
 __all__ = ["DFTGWBSE"]
 
