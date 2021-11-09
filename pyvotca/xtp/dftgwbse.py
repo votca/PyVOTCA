@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 
 from ..molecule import Molecule
 from ..options import Options
-from ..xml_editor import edit_xml
+from ..xml_editor import check_xml, create_xml_tree
 
 __all__ = ["DFTGWBSE"]
 
@@ -24,17 +24,21 @@ class DFTGWBSE:
         self.orbfile = ''
         self.options = Options(options)
 
+
     def update_options(self):
         """Merge user options with the defaults."""
         # parsing defaults
         votcashare = os.environ.get('VOTCASHARE')
-        default_options = f'{votcashare}/xtp/xml/dftgwbse.xml'
-        options = ET.parse(default_options)
-        root = options.getroot()
-        edit_xml(root, self.options.to_dict())
+        default_options_file = f'{votcashare}/xtp/xml/dftgwbse.xml'
+        default_options = ET.parse(default_options_file)
+        default_root = default_options.getroot()
 
-        # write out xml
-        options.write('dftgwbse.xml')
+        # prepare user options as ET
+        user_options = ET.Element("options")
+        user_options.append(create_xml_tree(ET.Element("dftgwbse"), self.options.to_dict()))
+        ET.ElementTree(user_options).write("test.xml")
+        ET.ElementTree(user_options).write('dftgwbse.xml')
+  
 
     def run(self):
         """Just runs xtp_tools with command line call."""
@@ -50,7 +54,7 @@ class DFTGWBSE:
         if not Path(self.jobdir).exists():
             os.makedirs(self.jobdir)
 
-        votcacmd = f"xtp_tools -e dftgwbse -c job_name={xyzname} -t {self.threads} > {self.jobdir}{self.jobname}.log"
+        votcacmd = f"xtp_tools -e dftgwbse -c job_name={xyzname} -o dftgwbse.xml -t {self.threads} > {self.jobdir}{self.jobname}.log"
 
         # DYLD_LIBRARY_PATH is removed from env under MacOS
         if platform.system() == "Darwin":
